@@ -37,7 +37,7 @@ class Header extends Component {
   
   render() {
     
-    const user = this.state.userObject;
+    const {user} = this.props;
     
     // depending on whether the user is signed in or not, provide different appbar
     let titleString = `Todo List Sample App`;
@@ -49,7 +49,7 @@ class Header extends Component {
     
     // depending on whether the user is signed in or not, provide different appbar
     let appbar_code = "";
-    if (applicationContext.isUserSet() && !applicationContext.getUserObject().isAnonymous) {
+    if (applicationContext.isUserSet() && !applicationContext.getUser().isAnonymous) {
       // SIGNEDIN
       appbar_code =
         <AppBar className="appbar_in_main" title={titleString}
@@ -58,7 +58,7 @@ class Header extends Component {
                     style={custom_padding}
                     onTouchTap={::this.loginAction}>
                     <Avatar size={avatar_icon_size}
-                            src={applicationContext.getUserObject().photoURL}/>
+                            src={applicationContext.getUser().photoURL}/>
                   </IconButton>}
         />;
     } else {
@@ -78,30 +78,13 @@ class Header extends Component {
     
   }// end render()
   
-  componentWillMount() {
-    
-    this.setState({userObject: null});
-  
-    this.le_setDataListener = applicationContext.addListener(
-      GLOBAL_CONSTANTS.LE_SET_USER,
-      (userObject)=> {
-        this.setState({userObject: userObject});
-      }
-    );
-    
-  }
-  
-  componentWillUnmount() {
-    applicationContext.removeListener(GLOBAL_CONSTANTS.LE_SET_USER, this.le_setDataListener);
-  }
-  
   loginAction() {
     
     // get the App object from the React context
     const app = this.context.app;
     
     if (applicationContext.isUserSet()) {
-      if (applicationContext.getUserObject().isAnonymous) {
+      if (applicationContext.getUser().isAnonymous) {
         // go from anonauth->signedinauth
         app.showSnackBar("anonauth->signedinauth");
         applicationContext.forceSignIn();

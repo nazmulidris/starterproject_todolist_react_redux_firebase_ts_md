@@ -23,23 +23,6 @@ class TodoList extends Component {
     super(props, context);
   }
   
-  componentWillMount() {
-    
-    this.setState({todoArray: null});
-    
-    this.le_setDataListener = applicationContext.addListener(
-      GLOBAL_CONSTANTS.LE_SET_DATA,
-      (data)=> {
-        this.setState({todoArray: data.todoArray});
-      }
-    );
-    
-  }
-  
-  componentWillUnmount() {
-    applicationContext.removeListener(GLOBAL_CONSTANTS.LE_SET_DATA, this.le_setDataListener);
-  }
-  
   componentDidMount() {
     this.scrollToBottom();
   }
@@ -60,7 +43,10 @@ class TodoList extends Component {
   
   render() {
     
-    const todoArray = this.state.todoArray;
+    const {
+      todoArray,
+      action_toggle_todo_index,
+    } = this.props;
     
     let jsxElements = [];
     
@@ -72,6 +58,7 @@ class TodoList extends Component {
               key={index}
               index={index}
               todoItem={todoItem}
+              action_toggle_todo_index={action_toggle_todo_index}
             />
           );
         }
@@ -95,12 +82,15 @@ class TodoList extends Component {
 class TodoListItem extends Component {
   
   render() {
-    let todoItem = this.props.todoItem;
     
-    if (todoItem.done) {
+    const todoItem = this.props.todoItem;
+    const done = todoItem.done;
+    const text = todoItem.item;
+    
+    if (done) {
       return (
         <ListItem
-          primaryText={todoItem.item}
+          primaryText={text}
           onClick={::this.onClick}
           rightIcon={<CheckBox />}
         />
@@ -108,7 +98,7 @@ class TodoListItem extends Component {
     } else {
       return (
         <ListItem
-          primaryText={todoItem.item}
+          primaryText={text}
           onClick={::this.onClick}
           rightIcon={<CheckBoxOutlineBlank />}
         />
@@ -118,8 +108,11 @@ class TodoListItem extends Component {
   }
   
   onClick(e) {
-    let index = this.props.index;
-    applicationContext.emit(GLOBAL_CONSTANTS.LE_MODIFY_TODO_ITEM, index);
+    let {
+      index,
+      action_toggle_todo_index
+    } = this.props;
+    action_toggle_todo_index(index);
   }
   
 }

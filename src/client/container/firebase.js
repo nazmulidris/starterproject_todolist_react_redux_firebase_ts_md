@@ -5,6 +5,7 @@
  */
 var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
+var actions = require("./actions");
 /** firebase database names */
 var DB_NAMES = {
     USER_ACCOUNT_ROOT: "USER_ACCOUNT_ROOT",
@@ -69,19 +70,6 @@ function _addSessionIdChild(ref, ctx) {
     ref.child("sessionId")
         .set(ctx.getSessionId());
 }
-/**
- * this just saves the given data to firebase ... it does not fire any updates to any
- * listeners - this happens in the firebase_on_listener
- */
-function saveDataToFirebase(data, ctx) {
-    // save to persistence
-    var root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
-    // add a timestamp at the top level object
-    _addTimestampChild(root_ref, ctx);
-    root_ref.child(DB_NAMES.DATA_KEY)
-        .set(data);
-}
-exports.saveDataToFirebase = saveDataToFirebase;
 /**
  * setup firebase auth ... the onAuthStateChanged() method is the main method that
  * firebase uses to manage authentication
@@ -151,9 +139,10 @@ function _saveUserAccountDataAndSetUser(ctx, user) {
     // save this to db
     root_ref.set(userObject);
     // save this user object
-    ctx.setUserObject(userObject);
+    this.getReduxStore()
+        .dispatch(actions.action_set_state_user(userObject));
     // load the rest of the data from firebase
-    _loadDataForUser(ctx);
+    _loadDataForUserAndAttachListenerToFirebase(ctx);
 }
 /** perform anonymous sign in using firebase ... this is done by default */
 function _forceAnonSignIn(ctx) {
@@ -196,7 +185,7 @@ function forceSignIn(ctx) {
         var old_uid = ctx.getUserId();
         var new_uid = new_user.uid;
         authStateObject = {
-            old_user: ctx.getUserObject(),
+            old_user: ctx.getUser(),
             new_user: new_user,
             old_uid: ctx.getUserId(),
             new_uid: new_user.uid
@@ -303,7 +292,7 @@ function forceSignOut(ctx) {
 }
 exports.forceSignOut = forceSignOut;
 /** this loads the data for the current user and sets it on the context */
-function _loadDataForUser(ctx) {
+function _loadDataForUserAndAttachListenerToFirebase(ctx) {
     // check to see if Redux state needs to be rehydrated (this is a one time operation)
     var userId = ctx.getUserId();
     var userDataRootRef = _getUserDataRootRef(ctx, userId);
@@ -317,15 +306,29 @@ function _loadDataForUser(ctx) {
     userDataRootRef.child(DB_NAMES.DATA_KEY)
         .on("value", function (snap) {
         var data = snap.val();
+        var payload_session_id = data.sessionId;
+        if (!lodash.isNil(payload_session_id)) {
+            if (lodash.isEqual(payload_session_id, ctx.getSessionId())) {
+                // do nothing! ignore this change ... it was made by me
+                // this change has been accounted for with dispatched redux
+                // actions already
+                if (LOGGING_ENABLED) {
+                    console.log("_loadDataForUserAndAttachListenerToFirebase() - ignoring Firebase" +
+                        " update since I made this change.");
+                }
+                return;
+            }
+        }
         if (lodash.isNil(data)) {
             // db is empty ... reset the data
             data = { todoArray: [] };
         }
         // save the user's data
-        ctx.setData(data);
+        ctx.getReduxStore()
+            .dispatch(actions.action_set_state_data(data));
     });
 }
-function dispatchAction(orig_action, ctx) {
+function dispatchActionAndSaveStateToFirebase(orig_action, ctx) {
     var action = orig_action;
     // apply the action locally, and this will change the state
     ctx.getReduxStore()
@@ -339,6 +342,6 @@ function dispatchAction(orig_action, ctx) {
     root_ref.child(DB_NAMES.DATA_KEY)
         .set(ctx.getReduxState().data);
 }
-exports.dispatchAction = dispatchAction;
+exports.dispatchActionAndSaveStateToFirebase = dispatchActionAndSaveStateToFirebase;
 /** export public functions */
 //# sourceMappingURL=firebase.js.map

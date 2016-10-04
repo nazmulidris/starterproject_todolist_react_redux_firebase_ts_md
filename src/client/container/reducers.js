@@ -54,8 +54,10 @@ function reducer_data_toggle_todo(state, action) {
     return state;
 }
 function reducer_main(state, action) {
-    if (state === void 0) { state = initialState; }
-    if (action.type === actions.TYPES.ADD_TODO) {
+    if (action.type === actions.TYPES.INIT_REDUX_STORE) {
+        return initialState;
+    }
+    else if (action.type === actions.TYPES.ADD_TODO) {
         return reducer_data_add_todo(state, action);
     }
     else if (action.type === actions.TYPES.TOGGLE_TODO) {

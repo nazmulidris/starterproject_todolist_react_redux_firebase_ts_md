@@ -30,29 +30,12 @@ class InputArea extends Component {
   
   constructor(props, context) {
     super(props, context);
-  }
-  
-  componentWillMount() {
-    
-    this.setState({userObject: null});
-    this.setState({inputValue: ""});
-    
-    this.le_setDataListener = applicationContext.addListener(
-      GLOBAL_CONSTANTS.LE_SET_USER,
-      (userObject)=> {
-        this.setState({userObject: userObject});
-      }
-    );
-    
-  }
-  
-  componentWillUnmount() {
-    applicationContext.removeListener(GLOBAL_CONSTANTS.LE_SET_USER, this.le_setDataListener);
+    this.state = {inputValue: ""}
   }
   
   render() {
     
-    const user = this.state.userObject;
+    const {user} = this.props;
     
     let labeltext = `Add a todo`;
     if (!lodash.isNil(user)) {
@@ -88,7 +71,7 @@ class InputArea extends Component {
       let newval = e.target.value;
       
       // call passed action to update redux!
-      applicationContext.emit(GLOBAL_CONSTANTS.LE_ADD_TODO_ITEM, newval);
+      this.props.action_add_todo_text(newval);
       
       // reset the text input field
       this.setState({inputValue: ""});

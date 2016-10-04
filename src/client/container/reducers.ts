@@ -21,7 +21,8 @@ const initialState: ReduxStateIF = {
   data: null, // store data object in here for user
 };
 
-function reducer_data_add_todo(state: ReduxStateIF, action: ReduxActionIF) {
+function reducer_data_add_todo(state: ReduxStateIF,
+                               action: ReduxActionIF) {
   
   const todo_text: string = action.payload;
   
@@ -51,7 +52,8 @@ function reducer_data_add_todo(state: ReduxStateIF, action: ReduxActionIF) {
   
 }
 
-function reducer_data_toggle_todo(state: ReduxStateIF, action: ReduxActionIF) {
+function reducer_data_toggle_todo(state: ReduxStateIF,
+                                  action: ReduxActionIF) {
   
   try {
     
@@ -74,23 +76,31 @@ function reducer_data_toggle_todo(state: ReduxStateIF, action: ReduxActionIF) {
   
 }
 
-function reducer_main(state: ReduxStateIF = initialState,
+function reducer_main(state: ReduxStateIF,
                       action: ReduxActionIF): ReduxStateIF {
-  if (action.type === actions.TYPES.ADD_TODO) {
+  
+  if (action.type === actions.TYPES.INIT_REDUX_STORE) {
+    return initialState;
+  }
+  else if (action.type === actions.TYPES.ADD_TODO) {
     return reducer_data_add_todo(state, action);
-  } else if (action.type === actions.TYPES.TOGGLE_TODO) {
+  }
+  else if (action.type === actions.TYPES.TOGGLE_TODO) {
     return reducer_data_toggle_todo(state, action);
-  } else if (action.type === actions.TYPES.SET_STATE_DATA) {
+  }
+  else if (action.type === actions.TYPES.SET_STATE_DATA) {
     return {
       data: action.payload,
       user: state.user,
     }
-  } else if (action.type === actions.TYPES.SET_STATE_USER) {
+  }
+  else if (action.type === actions.TYPES.SET_STATE_USER) {
     return {
       data: state.data,
       user: action.payload,
     }
   }
+  
 }
 
 export {

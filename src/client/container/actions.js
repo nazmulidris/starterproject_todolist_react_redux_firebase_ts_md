@@ -6,9 +6,17 @@ var TYPES = {
     SET_STATE_USER: "SET_STATE_USER",
     SET_STATE_DATA: "SET_STATE_DATA",
     ADD_TODO: "ADD_TODO",
-    TOGGLE_TODO: "TOGGLE_TODO"
+    TOGGLE_TODO: "TOGGLE_TODO",
+    INIT_REDUX_STORE: "INIT_REDUX_STORE"
 };
 exports.TYPES = TYPES;
+function action_init() {
+    return {
+        type: TYPES.INIT_REDUX_STORE,
+        payload: null
+    };
+}
+exports.action_init = action_init;
 function action_set_state_user(user) {
     return {
         type: TYPES.SET_STATE_USER,

@@ -9,6 +9,8 @@ const LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 
 import {AuthStateIF, DataIF, UserIF, TodoIF, ReduxActionIF} from "./interfaces";
 
+import * as actions from "./actions";
+
 /** firebase database names */
 const DB_NAMES = {
   USER_ACCOUNT_ROOT: "USER_ACCOUNT_ROOT",
@@ -77,23 +79,6 @@ function _addTimestampChild(ref, ctx) {
 function _addSessionIdChild(ref, ctx) {
   ref.child("sessionId")
      .set(ctx.getSessionId());
-}
-
-/**
- * this just saves the given data to firebase ... it does not fire any updates to any
- * listeners - this happens in the firebase_on_listener
- */
-function saveDataToFirebase(data: DataIF, ctx) {
-  
-  // save to persistence
-  let root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
-  
-  // add a timestamp at the top level object
-  _addTimestampChild(root_ref, ctx);
-  
-  root_ref.child(DB_NAMES.DATA_KEY)
-          .set(data);
-  
 }
 
 /**
@@ -175,10 +160,11 @@ function _saveUserAccountDataAndSetUser(ctx, user) {
   root_ref.set(userObject);
   
   // save this user object
-  ctx.setUserObject(userObject);
+  this.getReduxStore()
+      .dispatch(actions.action_set_state_user(userObject));
   
   // load the rest of the data from firebase
-  _loadDataForUser(ctx);
+  _loadDataForUserAndAttachListenerToFirebase(ctx);
   
 }
 
@@ -229,7 +215,7 @@ function forceSignIn(ctx) {
          let new_uid = new_user.uid;
       
          authStateObject = {
-           old_user: ctx.getUserObject(),
+           old_user: ctx.getUser(),
            new_user: new_user,
            old_uid: ctx.getUserId(),
            new_uid: new_user.uid,
@@ -364,7 +350,7 @@ function forceSignOut(ctx) {
 }
 
 /** this loads the data for the current user and sets it on the context */
-function _loadDataForUser(ctx) {
+function _loadDataForUserAndAttachListenerToFirebase(ctx) {
   
   // check to see if Redux state needs to be rehydrated (this is a one time operation)
   let userId = ctx.getUserId();
@@ -383,18 +369,37 @@ function _loadDataForUser(ctx) {
                  .on(
                    "value", (snap)=> {
                      let data: DataIF = snap.val();
+                     const payload_session_id = data.sessionId;
+      
+                     if (!lodash.isNil(payload_session_id)) {
+                       if (lodash.isEqual(payload_session_id, ctx.getSessionId())) {
+                         // do nothing! ignore this change ... it was made by me
+                         // this change has been accounted for with dispatched redux
+                         // actions already
+                         if (LOGGING_ENABLED) {
+                           console.log(
+                             "_loadDataForUserAndAttachListenerToFirebase() - ignoring Firebase" +
+                             " update since I made this change."
+                           );
+                         }
+                         return;
+                       }
+                     }
+      
                      if (lodash.isNil(data)) {
                        // db is empty ... reset the data
                        data = {todoArray: []};
                      }
+      
                      // save the user's data
-                     ctx.setData(data);
+                     ctx.getReduxStore()
+                        .dispatch(actions.action_set_state_data(data));
                    }
                  );
   
 }
 
-function dispatchAction(orig_action: ReduxActionIF, ctx) {
+function dispatchActionAndSaveStateToFirebase(orig_action: ReduxActionIF, ctx) {
   
   let action = orig_action;
   
@@ -417,9 +422,8 @@ function dispatchAction(orig_action: ReduxActionIF, ctx) {
 
 /** export public functions */
 export {
-  saveDataToFirebase,
   forceSignOut,
   forceSignIn,
   initAuth,
-  dispatchAction,
+  dispatchActionAndSaveStateToFirebase,
 }

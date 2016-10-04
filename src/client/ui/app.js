@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
-import {applicationContext} from '../container/context';
 import {InputArea} from './inputarea';
 import {GroupChat} from './groupchat';
 import {TodoList} from './todolist';
 import {Header} from './header';
 
 import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import * as actions from '../container/actions';
 import {applicationContext, bindActionCreatorsToFirebase} from '../container/context';
 
@@ -72,19 +70,25 @@ const muiTheme = getMuiTheme(
  * more info on using React Context to share the App object thru out the entire view
  * hierarchy.
  * - http://reactkungfu.com/2016/01/react-context-feature-in-practice/
+ *
+ * mapStateToProps & mapDispatchToProps more info:
+ * -
+ * http://stackoverflow.com/questions/32646920/whats-the-at-symbol-in-the-redux-connect-decorator
  */
 @connect(
-  (state) => ({
-    todoArray: state.data.todoArray,
-    user: state.user
-  }),
+  (state) => {
+    return {
+      data: state.data,
+      user: state.user
+    }
+  },
   (dispatch) => bindActionCreatorsToFirebase(actions, dispatch, applicationContext)
 )
 
 class App extends Component {
   
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     
     // these keys control the state of the snackbar component
     this.state = {
@@ -95,20 +99,31 @@ class App extends Component {
   
   render() {
     
+    const {
+      data,
+      user,
+      action_add_todo_text,
+      action_toggle_todo_index
+    } = this.props;
+    
+    const todoArray = lodash.isNil(data) ? null : data.todoArray;
+    
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div>
           <div className="container">
             
-            <Header />
+            <Header user={user}/>
             
             <div className="content">
               <div className="side_container_in_content">
                 <div id="scroll_todolist" className="todolist_items">
-                  <TodoList />
+                  <TodoList todoArray={todoArray}
+                            action_toggle_todo_index={action_toggle_todo_index}/>
                 </div>
                 <div className="input_area">
-                  <InputArea />
+                  <InputArea user={user}
+                             action_add_todo_text={action_add_todo_text}/>
                 </div>
               </div>
               <div className="groupchat_in_content">

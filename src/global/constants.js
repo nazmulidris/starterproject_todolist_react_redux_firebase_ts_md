@@ -10,10 +10,6 @@ const GLOBAL_CONSTANTS = {
   REMOTE_MESSAGE_FROM_CLIENT: "messageFromClient",
   REMOTE_MESSAGE_FROM_SERVER: "messageFromServer",
   LE_SHOW_SNACKBAR: "localevent_showSnackbar",
-  LE_SET_USER: "localevent_setUser",
-  LE_SET_DATA: "localevent_setData",
-  LE_ADD_TODO_ITEM: "localevent_addTodoItem",
-  LE_MODIFY_TODO_ITEM: "localevent_modifyTodoItem",
 };
 
 /** this determines if log messages are shown or not in the console */

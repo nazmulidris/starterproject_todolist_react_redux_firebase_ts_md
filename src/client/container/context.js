@@ -2,9 +2,9 @@
 "use strict";
 var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
-var mutateData = require('./mutatedata');
 var redux_1 = require('redux');
 var reducers = require('./reducers');
+var actions = require('./actions');
 var persistence = require('./firebase');
 var lodash = require('lodash');
 var events = require("events");
@@ -32,8 +32,6 @@ var ApplicationContext = (function () {
         this.initEventEmitter();
         // setup firebase auth
         persistence.initAuth(this);
-        // enable data to be saved to firebase when user changes it using in the UI
-        mutateData.init(this);
     }
     ApplicationContext.prototype.isProduction = function () {
         var hostname = window.location.hostname;
@@ -92,12 +90,12 @@ var ApplicationContext = (function () {
     };
     /**
      * is true if the user object is set, and it contains a uid field.
-     * you can get the user object from getUserObject()
+     * you can get the user object from getUser()
      * you can get the uid from getUserId()
      * @returns {boolean}
      */
     ApplicationContext.prototype.isUserSet = function () {
-        if (!lodash.isNil(this.getUserObject())) {
+        if (!lodash.isNil(this.getUser())) {
             if (!lodash.isNil(this.getUserId())) {
                 return true;
             }
@@ -105,40 +103,22 @@ var ApplicationContext = (function () {
         return false;
     };
     /**
-     * this saves a reference to the given data object (doesn't deep copy it).
-     * it also fires an event so that listeners who are interested in this are notified.
-     */
-    ApplicationContext.prototype.setData = function (data) {
-        this.data = data;
-        // emit event to let everyone know that the data is set
-        this.emit(GLOBAL_CONSTANTS.LE_SET_DATA, data);
-    };
-    /**
      * get a reference to the saved data object
      * @returns {DataIF}
      */
     ApplicationContext.prototype.getData = function () {
-        return this.data;
-    };
-    /**
-     * this saves a reference to the given user object (doesn't deep copy it).
-     * it also fires an event so that listeners who are interested in this are notified.
-     */
-    ApplicationContext.prototype.setUserObject = function (user) {
-        this.user = user;
-        // emit event that user has signed in
-        this.emit(GLOBAL_CONSTANTS.LE_SET_USER, user);
+        return this.getReduxState().data;
     };
     /**
      * get a reference to the saved user object
      * @returns {UserIF}
      */
-    ApplicationContext.prototype.getUserObject = function () {
-        return this.user;
+    ApplicationContext.prototype.getUser = function () {
+        return this.getReduxState().user;
     };
     /** gets the uid field of the userObject */
     ApplicationContext.prototype.getUserId = function () {
-        return this.getUserObject().uid;
+        return this.getUser().uid;
     };
     /** this tells firebase to start sign-in using Google (vs anon auth) */
     ApplicationContext.prototype.forceSignIn = function () {
@@ -226,11 +206,12 @@ var ApplicationContext = (function () {
         // create redux reduxStore
         if (USE_REDUX_DEVTOOLS) {
             // the following line uses chrome devtools redux plugin
-            this.reduxStore = redux_1.createStore(reducers.reducer_main, reducers.initialState, window.devToolsExtension && window.devToolsExtension());
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, null, window.devToolsExtension && window.devToolsExtension());
         }
         else {
-            this.reduxStore = redux_1.createStore(reducers.reducer_main, reducers.initialState);
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, null);
         }
+        this.reduxStore.dispatch(actions.action_init());
     };
     /**
      * get a reference to the redux store
@@ -249,7 +230,7 @@ var ApplicationContext = (function () {
     return ApplicationContext;
 }());
 function _dispatchAction(action, ctx) {
-    persistence.dispatchAction(action, ctx);
+    persistence.dispatchActionAndSaveStateToFirebase(action, ctx);
 }
 function _bindActionCreator(actionCreator, dispatch, ctx) {
     return function () {
