@@ -327,6 +327,8 @@ function forceSignOut(ctx) {
      .then(
        () => {
          // Sign-out successful.
+         ctx.getReduxStore()
+            .dispatch(actions.action_init());
        },
        (error)=> {
          // An error happened.

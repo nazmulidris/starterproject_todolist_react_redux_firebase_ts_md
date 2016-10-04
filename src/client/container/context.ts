@@ -122,12 +122,37 @@ class ApplicationContext {
    * @returns {boolean}
    */
   isUserSet() {
-    if (!lodash.isNil(this.getUser())) {
-      if (!lodash.isNil(this.getUserId())) {
-        return true;
+    try {
+      if (!lodash.isNil(this.getUser())) {
+        if (!lodash.isNil(this.getUserId())) {
+          return true;
+        }
       }
+      return false;
+    } catch (err) {
+      return false;
     }
-    return false;
+  }
+  
+  /**
+   * get a reference to the saved user object
+   * @returns {UserIF}
+   */
+  getUser() {
+    try {
+      return this.getReduxState().user;
+    } catch (err) {
+      return null;
+    }
+  }
+  
+  /** gets the uid field of the userObject */
+  getUserId() {
+    try {
+      return this.getUser().uid;
+    } catch (err) {
+      return null;
+    }
   }
   
   /**
@@ -136,19 +161,6 @@ class ApplicationContext {
    */
   getData(): DataIF {
     return this.getReduxState().data;
-  }
-  
-  /**
-   * get a reference to the saved user object
-   * @returns {UserIF}
-   */
-  getUser() {
-    return this.getReduxState().user;
-  }
-  
-  /** gets the uid field of the userObject */
-  getUserId() {
-    return this.getUser().uid;
   }
   
   /** this tells firebase to start sign-in using Google (vs anon auth) */
@@ -244,13 +256,23 @@ class ApplicationContext {
    * use the Redux Chrome Dev Tools Extension.
    */
   initReduxStore() {
+    
+    try {
+      this.reduxStore = createStore(
+        reducers.reducer_main,
+        null,
+        window.devToolsExtension && window.devToolsExtension()
+      );
+    } catch (e) {
+      this.reduxStore = createStore(
+        reducers.reducer_main,
+        null
+      );
+    }
   
-    this.reduxStore = createStore(
-      reducers.reducer_main,
-      null,
-      window.devToolsExtension && window.devToolsExtension()
-    );
-  
+    // explicitly INIT Redux!
+    this.reduxStore.dispatch(actions.action_init());
+    
     /**
      * this enables the use of redux dev tools in Chrome if you have the
      * Chrome extension installed - https://goo.gl/xU4D6P

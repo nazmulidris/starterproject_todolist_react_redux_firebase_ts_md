@@ -4,6 +4,7 @@ var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 var redux_1 = require('redux');
 var reducers = require('./reducers');
+var actions = require('./actions');
 var persistence = require('./firebase');
 var lodash = require('lodash');
 var events = require("events");
@@ -94,12 +95,38 @@ var ApplicationContext = (function () {
      * @returns {boolean}
      */
     ApplicationContext.prototype.isUserSet = function () {
-        if (!lodash.isNil(this.getUser())) {
-            if (!lodash.isNil(this.getUserId())) {
-                return true;
+        try {
+            if (!lodash.isNil(this.getUser())) {
+                if (!lodash.isNil(this.getUserId())) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        catch (err) {
+            return false;
+        }
+    };
+    /**
+     * get a reference to the saved user object
+     * @returns {UserIF}
+     */
+    ApplicationContext.prototype.getUser = function () {
+        try {
+            return this.getReduxState().user;
+        }
+        catch (err) {
+            return null;
+        }
+    };
+    /** gets the uid field of the userObject */
+    ApplicationContext.prototype.getUserId = function () {
+        try {
+            return this.getUser().uid;
+        }
+        catch (err) {
+            return null;
+        }
     };
     /**
      * get a reference to the saved data object
@@ -107,17 +134,6 @@ var ApplicationContext = (function () {
      */
     ApplicationContext.prototype.getData = function () {
         return this.getReduxState().data;
-    };
-    /**
-     * get a reference to the saved user object
-     * @returns {UserIF}
-     */
-    ApplicationContext.prototype.getUser = function () {
-        return this.getReduxState().user;
-    };
-    /** gets the uid field of the userObject */
-    ApplicationContext.prototype.getUserId = function () {
-        return this.getUser().uid;
     };
     /** this tells firebase to start sign-in using Google (vs anon auth) */
     ApplicationContext.prototype.forceSignIn = function () {
@@ -197,7 +213,14 @@ var ApplicationContext = (function () {
      * use the Redux Chrome Dev Tools Extension.
      */
     ApplicationContext.prototype.initReduxStore = function () {
-        this.reduxStore = redux_1.createStore(reducers.reducer_main, null, window.devToolsExtension && window.devToolsExtension());
+        try {
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, null, window.devToolsExtension && window.devToolsExtension());
+        }
+        catch (e) {
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, null);
+        }
+        // explicitly INIT Redux!
+        this.reduxStore.dispatch(actions.action_init());
         /**
          * this enables the use of redux dev tools in Chrome if you have the
          * Chrome extension installed - https://goo.gl/xU4D6P
