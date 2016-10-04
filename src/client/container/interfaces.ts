@@ -36,8 +36,8 @@ interface UserIF {
 /** this represents the data that is stored in firebase */
 interface DataIF {
   todoArray: TodoIF[];
-  timestamp?: any;
   sessionId?: any;
+  timestamp?: any;
 }
 
 /** this represents a constituent element of the todoArray */

@@ -4,7 +4,6 @@ var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 var redux_1 = require('redux');
 var reducers = require('./reducers');
-var actions = require('./actions');
 var persistence = require('./firebase');
 var lodash = require('lodash');
 var events = require("events");
@@ -211,7 +210,6 @@ var ApplicationContext = (function () {
         else {
             this.reduxStore = redux_1.createStore(reducers.reducer_main, null);
         }
-        this.reduxStore.dispatch(actions.action_init());
     };
     /**
      * get a reference to the redux store

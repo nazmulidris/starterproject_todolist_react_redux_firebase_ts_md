@@ -7,10 +7,12 @@ var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 var actions = require("./actions");
 /** firebase database names */
-var DB_NAMES = {
+var DB_CONST = {
     USER_ACCOUNT_ROOT: "USER_ACCOUNT_ROOT",
     USER_DATA_ROOT: "USER_DATA_ROOT",
-    DATA_KEY: "DATA_KEY"
+    DATA_KEY: "DATA_KEY",
+    SESSION_ID: "sessionId",
+    TIMESTAMP: "timestamp"
 };
 /**
  * utility function library import
@@ -31,11 +33,11 @@ var firebase_on_listener = null;
 function _getUserDataRootRef(ctx, id) {
     if (lodash.isNil(id)) {
         return ctx.getDatabase()
-            .ref(DB_NAMES.USER_DATA_ROOT);
+            .ref(DB_CONST.USER_DATA_ROOT);
     }
     else {
         return ctx.getDatabase()
-            .ref(DB_NAMES.USER_DATA_ROOT + "/" + id);
+            .ref(DB_CONST.USER_DATA_ROOT + "/" + id);
     }
 }
 /**
@@ -49,26 +51,12 @@ function _getUserDataRootRef(ctx, id) {
 function _getUserAccountRootRef(ctx, id) {
     if (lodash.isNil(id)) {
         return ctx.getDatabase()
-            .ref(DB_NAMES.USER_ACCOUNT_ROOT);
+            .ref(DB_CONST.USER_ACCOUNT_ROOT);
     }
     else {
         return ctx.getDatabase()
-            .ref(DB_NAMES.USER_ACCOUNT_ROOT + "/" + id);
+            .ref(DB_CONST.USER_ACCOUNT_ROOT + "/" + id);
     }
-}
-/**
- * given the firebase ref, it just adds a child object with value of firebase timestamp
- * @param ref
- * @param ctx
- * @private
- */
-function _addTimestampChild(ref, ctx) {
-    ref.child("timestamp")
-        .set(ctx.getFirebaseServerTimestampObject());
-}
-function _addSessionIdChild(ref, ctx) {
-    ref.child("sessionId")
-        .set(ctx.getSessionId());
 }
 /**
  * setup firebase auth ... the onAuthStateChanged() method is the main method that
@@ -139,7 +127,7 @@ function _saveUserAccountDataAndSetUser(ctx, user) {
     // save this to db
     root_ref.set(userObject);
     // save this user object
-    this.getReduxStore()
+    ctx.getReduxStore()
         .dispatch(actions.action_set_state_user(userObject));
     // load the rest of the data from firebase
     _loadDataForUserAndAttachListenerToFirebase(ctx);
@@ -303,30 +291,34 @@ function _loadDataForUserAndAttachListenerToFirebase(ctx) {
     }
     // save to detach for next time
     firebase_on_listener = userDataRootRef;
-    userDataRootRef.child(DB_NAMES.DATA_KEY)
-        .on("value", function (snap) {
-        var data = snap.val();
-        var payload_session_id = data.sessionId;
-        if (!lodash.isNil(payload_session_id)) {
-            if (lodash.isEqual(payload_session_id, ctx.getSessionId())) {
-                // do nothing! ignore this change ... it was made by me
-                // this change has been accounted for with dispatched redux
-                // actions already
-                if (LOGGING_ENABLED) {
-                    console.log("_loadDataForUserAndAttachListenerToFirebase() - ignoring Firebase" +
-                        " update since I made this change.");
-                }
-                return;
-            }
-        }
-        if (lodash.isNil(data)) {
-            // db is empty ... reset the data
-            data = { todoArray: [] };
-        }
-        // save the user's data
-        ctx.getReduxStore()
-            .dispatch(actions.action_set_state_data(data));
+    userDataRootRef.on("value", function (snap) {
+        _processUpdateFromFirebase(snap, ctx);
     });
+}
+function _processUpdateFromFirebase(snap, ctx) {
+    var value = snap.val();
+    if (lodash.isNil(value)) {
+        // nothing to do!
+        return;
+    }
+    var data = value[DB_CONST.DATA_KEY];
+    var payload_session_id = data[DB_CONST.SESSION_ID];
+    var timestamp = data[DB_CONST.TIMESTAMP];
+    if (!lodash.isNil(payload_session_id)) {
+        if (lodash.isEqual(payload_session_id, ctx.getSessionId())) {
+            // do nothing! ignore this change ... it was made by me
+            // this change has been accounted for with dispatched redux
+            // actions already
+            if (LOGGING_ENABLED) {
+                console.log("_loadDataForUserAndAttachListenerToFirebase() - ignoring Firebase" +
+                    " update since I made this change.");
+            }
+            return;
+        }
+    }
+    // save the user's data
+    ctx.getReduxStore()
+        .dispatch(actions.action_set_state_data(data));
 }
 function dispatchActionAndSaveStateToFirebase(orig_action, ctx) {
     var action = orig_action;
@@ -335,12 +327,11 @@ function dispatchActionAndSaveStateToFirebase(orig_action, ctx) {
         .dispatch(action);
     // save to persistence
     var root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
-    // add a timestamp at the top level object
-    _addTimestampChild(root_ref, ctx);
-    // add a session id at the top level object
-    _addSessionIdChild(root_ref, ctx);
-    root_ref.child(DB_NAMES.DATA_KEY)
-        .set(ctx.getReduxState().data);
+    var value = ctx.getReduxState().data;
+    value[DB_CONST.SESSION_ID] = ctx.getSessionId();
+    value[DB_CONST.TIMESTAMP] = ctx.getFirebaseServerTimestampObject();
+    root_ref.child(DB_CONST.DATA_KEY)
+        .set(value);
 }
 exports.dispatchActionAndSaveStateToFirebase = dispatchActionAndSaveStateToFirebase;
 /** export public functions */

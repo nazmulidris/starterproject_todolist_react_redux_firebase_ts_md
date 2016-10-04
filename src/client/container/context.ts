@@ -267,8 +267,6 @@ class ApplicationContext {
       );
     }
     
-    this.reduxStore.dispatch(actions.action_init());
-    
   }
   
   /**

@@ -13,7 +13,7 @@ var initialState = {
     data: null
 };
 exports.initialState = initialState;
-function reducer_data_add_todo(state, action) {
+function add_todo(state, action) {
     var todo_text = action.payload;
     if (!lodash.isNil(todo_text)) {
         var data_copy = lodash.cloneDeep(state.data);
@@ -27,25 +27,27 @@ function reducer_data_add_todo(state, action) {
         else {
             data_copy.todoArray.push(todoObject);
         }
-        return {
+        var retval = {
             user: state.user,
             data: data_copy
         };
+        return retval;
     }
     else {
         return state;
     }
 }
-function reducer_data_toggle_todo(state, action) {
+function toggle_todo(state, action) {
     try {
         var index = action.payload;
         var data_copy = lodash.cloneDeep(context_1.applicationContext.getData());
         var todoObject = data_copy.todoArray[index];
         todoObject.done = !todoObject.done;
-        return {
+        var retval = {
             user: state.user,
             data: data_copy
         };
+        return retval;
     }
     catch (e) {
         console.log("_modifyTodoItem had a problem ...");
@@ -53,27 +55,32 @@ function reducer_data_toggle_todo(state, action) {
     }
     return state;
 }
+function set_data(state, action) {
+    var retval = {
+        data: action.payload,
+        user: state.user
+    };
+    return retval;
+}
+function set_user(state, action) {
+    var retval = {
+        data: state.data,
+        user: action.payload
+    };
+    return retval;
+}
 function reducer_main(state, action) {
-    if (action.type === actions.TYPES.INIT_REDUX_STORE) {
-        return initialState;
-    }
-    else if (action.type === actions.TYPES.ADD_TODO) {
-        return reducer_data_add_todo(state, action);
-    }
-    else if (action.type === actions.TYPES.TOGGLE_TODO) {
-        return reducer_data_toggle_todo(state, action);
-    }
-    else if (action.type === actions.TYPES.SET_STATE_DATA) {
-        return {
-            data: action.payload,
-            user: state.user
-        };
-    }
-    else if (action.type === actions.TYPES.SET_STATE_USER) {
-        return {
-            data: state.data,
-            user: action.payload
-        };
+    switch (action.type) {
+        case actions.TYPES.REDUX_INIT:
+            return initialState;
+        case actions.TYPES.ADD_TODO:
+            return add_todo(state, action);
+        case actions.TYPES.TOGGLE_TODO:
+            return toggle_todo(state, action);
+        case actions.TYPES.SET_STATE_DATA:
+            return set_data(state, action);
+        case actions.TYPES.SET_STATE_USER:
+            return set_user(state, action);
     }
 }
 exports.reducer_main = reducer_main;
