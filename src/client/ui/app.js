@@ -77,10 +77,16 @@ const muiTheme = getMuiTheme(
  */
 @connect(
   (state) => {
-    return {
-      data: state.data,
-      user: state.user
-    }
+    if (lodash.isNil(state)) {
+      return {
+        data: null,
+        user: null,
+      }
+    } else
+      return {
+        data: state.data,
+        user: state.user
+      }
   },
   (dispatch) => bindActionCreatorsToFirebase(actions, dispatch, applicationContext)
 )
