@@ -197,19 +197,27 @@ var ApplicationContext = (function () {
      * use the Redux Chrome Dev Tools Extension.
      */
     ApplicationContext.prototype.initReduxStore = function () {
+        this.reduxStore = redux_1.createStore(reducers.reducer_main, null, window.devToolsExtension && window.devToolsExtension());
         /**
          * this enables the use of redux dev tools in Chrome if you have the
          * Chrome extension installed - https://goo.gl/xU4D6P
          */
-        var USE_REDUX_DEVTOOLS = this.isDevelopment();
+        // let USE_REDUX_DEVTOOLS = this.isDevelopment();
         // create redux reduxStore
-        if (USE_REDUX_DEVTOOLS) {
-            // the following line uses chrome devtools redux plugin
-            this.reduxStore = redux_1.createStore(reducers.reducer_main, null, window.devToolsExtension && window.devToolsExtension());
-        }
-        else {
-            this.reduxStore = redux_1.createStore(reducers.reducer_main, null);
-        }
+        // if (USE_REDUX_DEVTOOLS) {
+        //   // the following line uses chrome devtools redux plugin
+        //   this.reduxStore = createStore(
+        //     reducers.reducer_main,
+        //     null,
+        //     window.devToolsExtension && window.devToolsExtension()
+        //   );
+        // }
+        // else {
+        //   this.reduxStore = createStore(
+        //     reducers.reducer_main,
+        //     null
+        //   );
+        // }
     };
     /**
      * get a reference to the redux store
