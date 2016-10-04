@@ -3,9 +3,13 @@
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 const LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 
-import * as persistence from './firebase';
 import * as mutateData from './mutatedata';
-import {UserIF, DataIF} from "./interfaces";
+import {UserIF, DataIF, ReduxStateIF} from "./interfaces";
+
+import {createStore} from 'redux';
+import * as reducers from './reducers';
+import * as actions from './actions';
+import * as persistence from './firebase';
 
 const lodash = require('lodash');
 const events = require("events");
@@ -28,8 +32,12 @@ class ApplicationContext {
   public eventEmitter;
   public user: UserIF;
   public data: DataIF;
+  public reduxStore;
   
   constructor() {
+    
+    // init redux reduxStore
+    this.initReduxStore();
     
     // init firebase
     this.initFirebase();
@@ -38,7 +46,7 @@ class ApplicationContext {
     this.initSocket();
     
     // unique session id
-    this.sessionId = lodash.uniqueId();
+    this.sessionId = lodash.random(0, new Date().getTime(), false);
     
     // create event emitter
     this.initEventEmitter();
@@ -226,7 +234,7 @@ class ApplicationContext {
   
   /** convenience method to emit an event */
   emit(eventName, payload) {
-    if (LOGGING_ENABLED){
+    if (LOGGING_ENABLED) {
       console.log(`emit: eventName ${eventName} fired`);
       console.dir(payload);
     }
@@ -243,6 +251,7 @@ class ApplicationContext {
       }
       listener.apply(this, arguments);
     }
+    
     this.eventEmitter.addListener(
       eventName, logging_listener
     );
@@ -254,10 +263,92 @@ class ApplicationContext {
     this.eventEmitter.removeListener(eventName, listener);
   }
   
+  /**
+   * initialize the redux store and get the actions and reducers wired up to it
+   * this also tests to see if the browser is inDevelopment and if so, it will try and
+   * use the Redux Chrome Dev Tools Extension.
+   */
+  initReduxStore() {
+    
+    /**
+     * this enables the use of redux dev tools in Chrome if you have the
+     * Chrome extension installed - https://goo.gl/xU4D6P
+     */
+    let USE_REDUX_DEVTOOLS = this.isDevelopment();
+    
+    // create redux reduxStore
+    if (USE_REDUX_DEVTOOLS) {
+      // the following line uses chrome devtools redux plugin
+      this.reduxStore = createStore(
+        reducers.reducer_main,
+        reducers.initialState,
+        window.devToolsExtension && window.devToolsExtension()
+      );
+    }
+    else {
+      this.reduxStore = createStore(
+        reducers.reducer_main,
+        reducers.initialState
+      );
+    }
+  }
+  
+  /**
+   * get a reference to the redux store
+   * @returns {any}
+   */
+  getReduxStore() {
+    return this.reduxStore;
+  }
+  
+  /**
+   * get a reference to the redux state
+   * @returns {S}
+   */
+  getReduxState(): ReduxStateIF {
+    return this.reduxStore.getState();
+  }
+  
+}
+
+function _dispatchAction(action, ctx) {
+  persistence.dispatchAction(action, ctx);
+}
+
+function _bindActionCreator(actionCreator, dispatch, ctx) {
+  return function () {
+    return _dispatchAction(actionCreator.apply(undefined, arguments), ctx);
+  };
+}
+
+function bindActionCreatorsToFirebase(actionCreators, dispatch, ctx) {
+  if (typeof actionCreators === 'function') {
+    return _bindActionCreator(actionCreators, dispatch, ctx);
+  }
+  
+  if (typeof actionCreators !== 'object' || actionCreators === null) {
+    throw new Error(
+      'bindActionCreators expected an object or a function, instead received ' +
+      (actionCreators === null ? 'null' : typeof actionCreators) + '. ' +
+      'Did you write "import actions from" instead of "import * as' +
+      ' actions from"?'
+    );
+  }
+  
+  var keys = Object.keys(actionCreators);
+  var boundActionCreators = {};
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var actionCreator = actionCreators[key];
+    if (typeof actionCreator === 'function') {
+      boundActionCreators[key] = _bindActionCreator(actionCreator, dispatch, ctx);
+    }
+  }
+  return boundActionCreators;
 }
 
 /** create a singleton that will be used everywhere in the project */
 const applicationContext = new ApplicationContext();
 
 /** export the singleton */
-export {applicationContext}
+export {applicationContext, bindActionCreatorsToFirebase}

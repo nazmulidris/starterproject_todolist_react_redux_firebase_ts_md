@@ -16,7 +16,11 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
  */
 injectTapEventPlugin();
 
+import {applicationContext} from './container/context';
+
 ReactDOM.render(
-  <App />,
+  <Provider store={applicationContext.getReduxStore()}>
+    <App />
+  </Provider>,
   document.getElementById('app')
 );

@@ -2,8 +2,10 @@
 "use strict";
 var GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 var LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
-var persistence = require('./firebase');
 var mutateData = require('./mutatedata');
+var redux_1 = require('redux');
+var reducers = require('./reducers');
+var persistence = require('./firebase');
 var lodash = require('lodash');
 var events = require("events");
 /**
@@ -18,12 +20,14 @@ var events = require("events");
  */
 var ApplicationContext = (function () {
     function ApplicationContext() {
+        // init redux reduxStore
+        this.initReduxStore();
         // init firebase
         this.initFirebase();
         // setup websocket (used for group chat)
         this.initSocket();
         // unique session id
-        this.sessionId = lodash.uniqueId();
+        this.sessionId = lodash.random(0, new Date().getTime(), false);
         // create event emitter
         this.initEventEmitter();
         // setup firebase auth
@@ -208,8 +212,72 @@ var ApplicationContext = (function () {
     ApplicationContext.prototype.removeListener = function (eventName, listener) {
         this.eventEmitter.removeListener(eventName, listener);
     };
+    /**
+     * initialize the redux store and get the actions and reducers wired up to it
+     * this also tests to see if the browser is inDevelopment and if so, it will try and
+     * use the Redux Chrome Dev Tools Extension.
+     */
+    ApplicationContext.prototype.initReduxStore = function () {
+        /**
+         * this enables the use of redux dev tools in Chrome if you have the
+         * Chrome extension installed - https://goo.gl/xU4D6P
+         */
+        var USE_REDUX_DEVTOOLS = this.isDevelopment();
+        // create redux reduxStore
+        if (USE_REDUX_DEVTOOLS) {
+            // the following line uses chrome devtools redux plugin
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, reducers.initialState, window.devToolsExtension && window.devToolsExtension());
+        }
+        else {
+            this.reduxStore = redux_1.createStore(reducers.reducer_main, reducers.initialState);
+        }
+    };
+    /**
+     * get a reference to the redux store
+     * @returns {any}
+     */
+    ApplicationContext.prototype.getReduxStore = function () {
+        return this.reduxStore;
+    };
+    /**
+     * get a reference to the redux state
+     * @returns {S}
+     */
+    ApplicationContext.prototype.getReduxState = function () {
+        return this.reduxStore.getState();
+    };
     return ApplicationContext;
 }());
+function _dispatchAction(action, ctx) {
+    persistence.dispatchAction(action, ctx);
+}
+function _bindActionCreator(actionCreator, dispatch, ctx) {
+    return function () {
+        return _dispatchAction(actionCreator.apply(undefined, arguments), ctx);
+    };
+}
+function bindActionCreatorsToFirebase(actionCreators, dispatch, ctx) {
+    if (typeof actionCreators === 'function') {
+        return _bindActionCreator(actionCreators, dispatch, ctx);
+    }
+    if (typeof actionCreators !== 'object' || actionCreators === null) {
+        throw new Error('bindActionCreators expected an object or a function, instead received ' +
+            (actionCreators === null ? 'null' : typeof actionCreators) + '. ' +
+            'Did you write "import actions from" instead of "import * as' +
+            ' actions from"?');
+    }
+    var keys = Object.keys(actionCreators);
+    var boundActionCreators = {};
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var actionCreator = actionCreators[key];
+        if (typeof actionCreator === 'function') {
+            boundActionCreators[key] = _bindActionCreator(actionCreator, dispatch, ctx);
+        }
+    }
+    return boundActionCreators;
+}
+exports.bindActionCreatorsToFirebase = bindActionCreatorsToFirebase;
 /** create a singleton that will be used everywhere in the project */
 var applicationContext = new ApplicationContext();
 exports.applicationContext = applicationContext;

@@ -3,6 +3,16 @@
  * to the files with a .ts extension
  */
 
+interface ReduxStateIF {
+  user: UserIF,
+  data: DataIF,
+}
+
+interface ReduxActionIF {
+  type: string,
+  payload: any,
+}
+
 /** holds information about the user who is signed in */
 interface AuthStateIF {
   old_uid?: string;
@@ -39,5 +49,7 @@ export {
   AuthStateIF,
   UserIF,
   DataIF,
-  TodoIF
+  TodoIF,
+  ReduxStateIF,
+  ReduxActionIF,
 }

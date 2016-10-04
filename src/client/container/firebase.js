@@ -65,6 +65,10 @@ function _addTimestampChild(ref, ctx) {
     ref.child("timestamp")
         .set(ctx.getFirebaseServerTimestampObject());
 }
+function _addSessionIdChild(ref, ctx) {
+    ref.child("sessionId")
+        .set(ctx.getSessionId());
+}
 /**
  * this just saves the given data to firebase ... it does not fire any updates to any
  * listeners - this happens in the firebase_on_listener
@@ -321,5 +325,20 @@ function _loadDataForUser(ctx) {
         ctx.setData(data);
     });
 }
+function dispatchAction(orig_action, ctx) {
+    var action = orig_action;
+    // apply the action locally, and this will change the state
+    ctx.getReduxStore()
+        .dispatch(action);
+    // save to persistence
+    var root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
+    // add a timestamp at the top level object
+    _addTimestampChild(root_ref, ctx);
+    // add a session id at the top level object
+    _addSessionIdChild(root_ref, ctx);
+    root_ref.child(DB_NAMES.DATA_KEY)
+        .set(ctx.getReduxState().data);
+}
+exports.dispatchAction = dispatchAction;
 /** export public functions */
 //# sourceMappingURL=firebase.js.map

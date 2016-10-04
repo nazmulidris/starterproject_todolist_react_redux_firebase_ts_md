@@ -7,7 +7,7 @@
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 const LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 
-import {AuthStateIF, DataIF, UserIF, TodoIF} from "./interfaces";
+import {AuthStateIF, DataIF, UserIF, TodoIF, ReduxActionIF} from "./interfaces";
 
 /** firebase database names */
 const DB_NAMES = {
@@ -72,6 +72,11 @@ function _getUserAccountRootRef(ctx, id?) {
 function _addTimestampChild(ref, ctx) {
   ref.child("timestamp")
      .set(ctx.getFirebaseServerTimestampObject());
+}
+
+function _addSessionIdChild(ref, ctx) {
+  ref.child("sessionId")
+     .set(ctx.getSessionId());
 }
 
 /**
@@ -389,10 +394,32 @@ function _loadDataForUser(ctx) {
   
 }
 
-/** export public functions */ 
+function dispatchAction(orig_action: ReduxActionIF, ctx) {
+  
+  let action = orig_action;
+  
+  // apply the action locally, and this will change the state
+  ctx.getReduxStore()
+     .dispatch(action);
+  
+  // save to persistence
+  let root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
+  
+  // add a timestamp at the top level object
+  _addTimestampChild(root_ref, ctx);
+  // add a session id at the top level object
+  _addSessionIdChild(root_ref, ctx);
+  
+  root_ref.child(DB_NAMES.DATA_KEY)
+          .set(ctx.getReduxState().data);
+  
+}
+
+/** export public functions */
 export {
   saveDataToFirebase,
   forceSignOut,
   forceSignIn,
   initAuth,
+  dispatchAction,
 }

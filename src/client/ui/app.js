@@ -5,6 +5,11 @@ import {GroupChat} from './groupchat';
 import {TodoList} from './todolist';
 import {Header} from './header';
 
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import * as actions from '../container/actions';
+import {applicationContext, bindActionCreatorsToFirebase} from '../container/context';
+
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 
 /**
@@ -68,6 +73,14 @@ const muiTheme = getMuiTheme(
  * hierarchy.
  * - http://reactkungfu.com/2016/01/react-context-feature-in-practice/
  */
+@connect(
+  (state) => ({
+    todoArray: state.data.todoArray,
+    user: state.user
+  }),
+  (dispatch) => bindActionCreatorsToFirebase(actions, dispatch, applicationContext)
+)
+
 class App extends Component {
   
   constructor(props) {
