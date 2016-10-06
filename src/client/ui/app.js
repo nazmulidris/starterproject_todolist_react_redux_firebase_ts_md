@@ -3,7 +3,7 @@ import {InputArea} from './inputarea';
 import {GroupChat} from './groupchat';
 import {TodoList} from './todolist';
 import {Header} from './header';
-import {Hello} from './test';
+import {Test} from './test';
 
 import {connect} from 'react-redux';
 import * as actions from '../container/actions';
@@ -135,7 +135,7 @@ class App extends Component {
               </div>
               <div className="groupchat_in_content">
                 {/*<GroupChat />*/}
-                <Hello compiler="TypeScript" framework="React" />
+                <Test compiler="TypeScript" framework="React" />
               </div>
             </div>
           
