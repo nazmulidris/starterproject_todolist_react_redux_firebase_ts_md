@@ -14,6 +14,10 @@ module.exports = {
     inline: true,
     port: 3333
   },
+  resolve: {
+    // Add '.ts' and '.tsx' as resolvable extensions.
+    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
+  },
   module: {
     loaders: [
       {
@@ -24,6 +28,22 @@ module.exports = {
           plugins: ['transform-decorators-legacy', 'transform-runtime'],
           presets: ['es2015', 'stage-0', 'react'],
         }
+      },
+      {
+        test: /\.tsx?$/,
+        loader: "ts-loader"
+      },
+      {
+        test: /\.ts?$/,
+        loader: "ts-loader"
+      },
+    ],
+    preLoaders: [
+      // All output '.js' files will have any sourcemaps re-processed by
+      // 'source-map-loader'.
+      {
+        test: /\.js$/,
+        loader: "source-map-loader"
       }
     ]
   }

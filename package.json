@@ -36,6 +36,9 @@
     "react-tap-event-plugin": "^1.0.0",
     "redux": "^3.5.2",
     "socket.io": "^1.4.8",
+    "source-map-loader": "^0.1.5",
+    "ts-loader": "^0.8.2",
+    "typescript": "^2.0.3",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   },
