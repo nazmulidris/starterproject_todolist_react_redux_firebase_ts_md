@@ -4,7 +4,7 @@ import {
 }
   from 'material-ui';
 import {applicationContext} from '../container/context';
-import {ChatMessageIF} from "../container/interfaces";
+import {ChatMessageIF, PresenceIF} from "../container/interfaces";
 import Props = __React.Props;
 
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
@@ -20,12 +20,52 @@ export class GroupChat extends React.Component<Props, {}> {
   
   componentDidMount() {
     this.scrollToBottom();
+    
+    // respond to chat messages coming in from the server socket
     const socket = applicationContext.getSocket();
     socket.on(
       GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, (data)=> {
         this.rcvMsgFromServer(data)
       }
     );
+    
+    // respond to changes in presence
+    applicationContext.addListener(
+      GLOBAL_CONSTANTS.LE_PRESENCE_USER_ADDED, (presence: PresenceIF)=> {
+        const msg: ChatMessageIF = {
+          message: `${presence.user.displayName} joined`,
+          displayName: "The App",
+          photoURL: "https://todolist-redux-r3bl-alliance.herokuapp.com/favicon.png",
+          timestamp: new Date().getTime(),
+        };
+        this.rcvMsgFromServer(msg);
+      }
+    );
+    
+    applicationContext.addListener(
+      GLOBAL_CONSTANTS.LE_PRESENCE_USER_REMOVED, (presence: PresenceIF)=> {
+        const msg: ChatMessageIF = {
+          message: `${presence.user.displayName} left`,
+          displayName: "The App",
+          photoURL: "https://todolist-redux-r3bl-alliance.herokuapp.com/favicon.png",
+          timestamp: new Date().getTime(),
+        };
+        this.rcvMsgFromServer(msg);
+      }
+    );
+    
+    applicationContext.addListener(
+      GLOBAL_CONSTANTS.LE_PRESENCE_USER_CHANGED, (presence: PresenceIF)=> {
+        const msg: ChatMessageIF = {
+          message: `${presence.user.displayName} is ${presence.status}`,
+          displayName: "The App",
+          photoURL: "https://todolist-redux-r3bl-alliance.herokuapp.com/favicon.png",
+          timestamp: new Date().getTime(),
+        };
+        this.rcvMsgFromServer(msg);
+      }
+    );
+    
   }
   
   componentDidUpdate() {
@@ -111,10 +151,12 @@ class ChatMessageListItem extends React.Component<Props, {}> {
     
     const chatMessage: ChatMessageIF = this.props.chatMessage;
     const avatar_icon_size = 32;
+  
+    const displayMsg = `${chatMessage.displayName} says: ${chatMessage.message}`;
     
     return (
       <ListItem
-        primaryText={chatMessage.message}
+        primaryText={displayMsg}
         rightIcon={<Avatar size={avatar_icon_size} src={chatMessage.photoURL}/>}
       />
     );

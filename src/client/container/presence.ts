@@ -34,6 +34,7 @@ function initPresence(ctx) {
   // Generate a reference to a new location for my user with push.
   myUserRef = userListRef.push();
   
+  // Monitor connection state on browser tab
   _getConnectedStateRef(ctx)
     .on(
       "value", (snap)=> {
@@ -52,12 +53,14 @@ function initPresence(ctx) {
       }
     );
   
+  // respond to changes in user login (anon auth and signed in)
   ctx.addListener(
     GLOBAL_CONSTANTS.LE_SET_USER, (userObject: UserIF)=> {
       setUserStatus(PRESENCE_STATES.ONLINE, ctx);
     }
   );
-  
+
+  // respond to changes in the browser activity
   // more info - https://github.com/soixantecircuits/idle-js
   const idleJs = require("idle-js");
   new idleJs(
@@ -85,6 +88,27 @@ function initPresence(ctx) {
       startAtIdle: false // set it to true if you want to start in the idle state
     }
   ).start();
+  
+  // Update our GUI to show someone"s online status.
+  userListRef.on("child_added", (snap)=> {
+    const presence:PresenceIF = snap.val();
+    // console.log(`added ${JSON.stringify(presence)}`);
+    ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_ADDED, presence);
+  });
+  
+  // Update our GUI to remove the status of a user who has left.
+  userListRef.on("child_removed", (snap)=> {
+    const presence:PresenceIF = snap.val();
+    // console.log(`removed ${JSON.stringify(presence)}`);
+    ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_REMOVED, presence);
+  });
+
+  // Update our GUI to change a user"s status.
+  userListRef.on("child_changed", (snap)=> {
+    const presence:PresenceIF = snap.val();
+    // console.log(`changed ${JSON.stringify(presence)}`);
+    ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_CHANGED, presence);
+  });
   
 }
 
