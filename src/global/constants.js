@@ -14,6 +14,7 @@ const GLOBAL_CONSTANTS = {
   LE_PRESENCE_USER_ADDED: "localevent_presenceUserAdded",
   LE_PRESENCE_USER_REMOVED: "localevent_presenceUserRemoved",
   LE_PRESENCE_USER_CHANGED: "localevent_presenceUserChanged",
+  LE_CONTAINER_NETWORK_CONNECTION_STATE: "localevent_containerNetworkConnectionState",
 };
 
 /** this determines if log messages are shown or not in the console */

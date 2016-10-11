@@ -44,11 +44,13 @@ function initPresence(ctx) {
                    .remove();
           // Set our initial online status.
           setUserStatus(PRESENCE_STATES.ONLINE, ctx);
+          ctx.emit(GLOBAL_CONSTANTS.LE_CONTAINER_NETWORK_CONNECTION_STATE, PRESENCE_STATES.ONLINE);
         } else {
           // We need to catch anytime we are marked as offline and then set the correct
           // status. We could be marked as offline 1) on page load or 2) when we lose our
           // internet connection temporarily.
           setUserStatus(PRESENCE_STATES.OFFLINE, ctx);
+          ctx.emit(GLOBAL_CONSTANTS.LE_CONTAINER_NETWORK_CONNECTION_STATE, PRESENCE_STATES.OFFLINE);
         }
       }
     );
