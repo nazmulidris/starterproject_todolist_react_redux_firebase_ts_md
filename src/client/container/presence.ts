@@ -62,7 +62,41 @@ function initPresence(ctx) {
       console.log('local event tiggered setUserStatus()');
       setUserStatus(PRESENCE_STATES.ONLINE, ctx);
     }
-  )
+  );
+  
+  //
+  // more info - https://github.com/soixantecircuits/idle-js
+  //
+  const idleJs = require("idle-js");
+  new idleJs(
+    {
+      idle: 10000, // idle time in ms
+      // events that will trigger the idle resetter
+      events: ['mousemove', 'keydown', 'mousedown', 'touchstart'],
+      // callback function to be executed after idle time
+      onIdle: function () {
+        console.log('IDLE');
+        setUserStatus(PRESENCE_STATES.IDLE, ctx);
+      },
+      // callback function to be executed after back form idleness
+      onActive: function () {
+        console.log('ACTIVE');
+        setUserStatus(PRESENCE_STATES.ONLINE, ctx);
+      },
+      // callback function to be executed when window become hidden
+      onHide: function () {
+        console.log('HIDE');
+        setUserStatus(PRESENCE_STATES.AWAY, ctx)
+      },
+      // callback function to be executed when window become visible
+      onShow: function () {
+        console.log('SHOW');
+        setUserStatus(PRESENCE_STATES.ONLINE, ctx)
+      },
+      keepTracking: true, // set it to false of you want to track only once
+      startAtIdle: false // set it to true if you want to start in the idle state
+    }
+  ).start();
   
 }
 
@@ -82,7 +116,7 @@ function setUserStatus(status: string, ctx: any) {
     myUserRef.set(presenceObject);
     
     console.log(`setUserStatus: ` + JSON.stringify(presenceObject));
-  }else{
+  } else {
     console.log('setUserStatus: not possible since user is anonymous!');
   }
   
