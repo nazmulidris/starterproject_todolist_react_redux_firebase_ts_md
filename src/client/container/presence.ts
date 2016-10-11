@@ -13,6 +13,7 @@ const lodash = require('lodash');
 
 const PRESENCE_STATES = {
   ONLINE: "online",
+  OFFLINE: "offline",
   IDLE: "idle",
   AWAY: "away",
 };
@@ -32,6 +33,7 @@ function initPresence(ctx) {
   
   // Generate a reference to a new location for my user with push.
   myUserRef = userListRef.push();
+  console.log('creating a new user presence obj');
   
   _getConnectedStateRef(ctx)
     .on(
@@ -42,19 +44,22 @@ function initPresence(ctx) {
                    .remove();
           
           // Set our initial online status.
+          console.log('_getConnectedStateRef tiggered setUserStatus()');
           setUserStatus(PRESENCE_STATES.ONLINE, ctx);
         } else {
           
           // We need to catch anytime we are marked as offline and then set the correct
           // status. We could be marked as offline 1) on page load or 2) when we lose our
           // internet connection temporarily.
-          setUserStatus(currentStatus, ctx);
+          console.log('_getConnectedStateRef tiggered setUserStatus()');
+          setUserStatus(PRESENCE_STATES.OFFLINE, ctx);
         }
       }
     );
   
   ctx.addListener(
     GLOBAL_CONSTANTS.LE_SET_USER, (userObject: UserIF)=> {
+      console.log('local event tiggered setUserStatus()');
       setUserStatus(PRESENCE_STATES.ONLINE, ctx);
     }
   )
@@ -70,7 +75,12 @@ function setUserStatus(status: string, ctx: any) {
       status: status,
       user: ctx.getUser(),
     };
+    
+    // this works even when the myUserRef is removed onDisconnect()
+    // set will just recreate a new object at the root level with the
+    // old key!
     myUserRef.set(presenceObject);
+    
     console.log(`setUserStatus: ` + JSON.stringify(presenceObject));
   }else{
     console.log('setUserStatus: not possible since user is anonymous!');
