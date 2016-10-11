@@ -13,6 +13,13 @@ interface ReduxActionIF {
   payload: any,
 }
 
+interface ChatMessageIF {
+  message: string,
+  timestamp: number,
+  displayName: string,
+  photoURL: string,
+}
+
 /** holds information about the user who is signed in */
 interface AuthStateIF {
   old_uid?: string;
@@ -54,4 +61,5 @@ export {
   TodoIF,
   ReduxStateIF,
   ReduxActionIF,
+  ChatMessageIF,
 }

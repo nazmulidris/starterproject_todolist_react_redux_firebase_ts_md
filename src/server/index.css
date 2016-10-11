@@ -50,11 +50,11 @@ code {
 
 .side_container_in_content {
     flex: 0 0 30%;
+    border-right: 1px solid greenyellow;
     display: flex;
     flex-flow: column;
     justify-content: flex-end;
     flex-grow: 1;
-    border-right: 1px solid greenyellow;
 }
 
 /** this is for the todoItems - 1/3 width-width of the tabbed_sidebar */
@@ -64,18 +64,26 @@ code {
     overflow-y: auto;
 }
 
-.input_area {
-    flex: 0 0 56px;
+.todo_input_area {
+    flex: 0 0 auto;
     border-top: 1px solid deepskyblue;
     overflow: hidden;
 }
 
+.chat_input_area {
+    flex: 0 0 auto;
+    border-top: 1px solid royalblue;
+    overflow: hidden;
+}
+
 /** this is for the groupchat - 2/3 width-width of the tabbed_sidebar */
-.groupchat_in_content {
+.groupchat_container_in_content {
     flex: 0 0 70%;
-    overflow: auto;
     border-right: 1px solid pink;
-    overflow: auto;
+    display: flex;
+    flex-flow: column;
+    justify-content: flex-end;
+    flex-grow: 1;
 }
 
 /** styling for the text input field */

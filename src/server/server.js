@@ -87,22 +87,11 @@ if (!lodash.isNil(socketio))
     "connection",
     (socket)=> {
       
-      let interval = setInterval(
-        ()=> {
-          var data = "This is a msg from server: " + new Date().getTime();
-          socket.emit(
-            GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER,
-            data
-          );
-          console.log("sending rcvMsgFromServer to client: " + data);
-        },
-        60000
-      );
-      
       socket.on(
         GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_CLIENT,
         (data)=> {
           console.log("Received message from client: " + data);
+          socket.emit(GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, data);
         }
       );
       
@@ -110,7 +99,6 @@ if (!lodash.isNil(socketio))
         "disconnect",
         ()=> {
           console.log("Socket has disconnected");
-          clearInterval(interval);
         }
       )
       

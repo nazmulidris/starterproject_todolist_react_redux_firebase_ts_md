@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
 import {InputArea} from './inputarea';
-import {GroupChat} from './groupchat';
 import {TodoList} from './todolist';
 import {Header} from './header';
-import {Test} from './test';
+import {GroupChat} from './groupchat';
 
 import {connect} from 'react-redux';
 import * as actions from '../container/actions';
@@ -28,6 +27,7 @@ import {
 import {
   Snackbar
 }
+  
   from 'material-ui';
 
 /**
@@ -128,14 +128,20 @@ class App extends Component {
                   <TodoList todoArray={todoArray}
                             action_toggle_todo_index={action_toggle_todo_index}/>
                 </div>
-                <div className="input_area">
-                  <InputArea user={user}
+                <div className="todo_input_area">
+                  <InputArea type="todo"
+                             user={user}
                              action_add_todo_text={action_add_todo_text}/>
                 </div>
               </div>
-              <div className="groupchat_in_content">
-                {/*<GroupChat />*/}
-                <Test compiler="TypeScript" framework="React" />
+              <div className="groupchat_container_in_content">
+                <div id="scroll_chatlist" className="todolist_items">
+                  <GroupChat />
+                </div>
+                <div className="chat_input_area">
+                  <InputArea type="chat"
+                             user={user}/>
+                </div>
               </div>
             </div>
           
@@ -197,8 +203,6 @@ class App extends Component {
         this.showSnackBar("socket.io is connected to server");
       }
     );
-    
-    socket.on(GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, ::this.rcvMsgFromServer);
     
   }
   

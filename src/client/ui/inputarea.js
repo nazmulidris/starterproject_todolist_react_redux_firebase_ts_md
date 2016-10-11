@@ -35,12 +35,28 @@ class InputArea extends Component {
   
   render() {
     
-    const {user} = this.props;
+    const {user, type} = this.props;
     
-    let labeltext = `Add a todo`;
+    const labeltext_todo = `Add a todo`;
+    const labeltext_chat = `Write a group chat message`;
+    const labeltext_cant_chat = `Must sign in to chat`;
+    let labeltext;
+    
+    
+    if (lodash.isEqual(type, "todo")) {
+      labeltext = labeltext_todo;
+    } else {
+      labeltext = labeltext_cant_chat;
+    }
+    
     if (!lodash.isNil(user)) {
       if (!user.isAnonymous) {
-        labeltext = `${labeltext} ${user.displayName}`;
+        // user is signed in && not anonymous
+        if (lodash.isEqual(type, "todo")) {
+          labeltext = `${labeltext_todo} ${user.displayName}`;
+        } else {
+          labeltext = `${labeltext_chat} ${user.displayName}`;
+        }
       }
     }
     
@@ -70,14 +86,35 @@ class InputArea extends Component {
       // get user input
       let newval = e.target.value;
       
-      // call passed action to update redux!
-      this.props.action_add_todo_text(newval);
-      
       // reset the text input field
       this.setState({inputValue: ""});
+
+      const {type, user} = this.props;
+      const {app} = this.context;
       
-      // emit this to the via the app
-      this.context.app.sndMsgToServer(newval);
+      if (lodash.isEqual(type, "todo")) {
+        // call passed action to update redux!
+        this.props.action_add_todo_text(newval);
+      } else {
+        // chat
+        if (!lodash.isNil(user)) {
+          if (!user.isAnonymous) {
+            // user is signed in && not anonymous
+            // emit this to the via the app
+            // create a ChatMessageIF and send it
+            const chatMessage = {
+              message: newval,
+              timeStamp: new Date().getTime(),
+              displayName: user.displayName,
+              photoURL: user.photoURL,
+            };
+            app.sndMsgToServer(chatMessage);
+          }else {
+            app.showSnackBar("Message not sent - you must be signed in to chat");
+          }
+        }
+        
+      }
       
     }
   }
