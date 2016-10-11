@@ -33,7 +33,6 @@ function initPresence(ctx) {
   
   // Generate a reference to a new location for my user with push.
   myUserRef = userListRef.push();
-  console.log('creating a new user presence obj');
   
   _getConnectedStateRef(ctx)
     .on(
@@ -42,16 +41,12 @@ function initPresence(ctx) {
           // If we lose our internet connection, we want ourselves removed from the list.
           myUserRef.onDisconnect()
                    .remove();
-          
           // Set our initial online status.
-          console.log('_getConnectedStateRef tiggered setUserStatus()');
           setUserStatus(PRESENCE_STATES.ONLINE, ctx);
         } else {
-          
           // We need to catch anytime we are marked as offline and then set the correct
           // status. We could be marked as offline 1) on page load or 2) when we lose our
           // internet connection temporarily.
-          console.log('_getConnectedStateRef tiggered setUserStatus()');
           setUserStatus(PRESENCE_STATES.OFFLINE, ctx);
         }
       }
@@ -59,14 +54,11 @@ function initPresence(ctx) {
   
   ctx.addListener(
     GLOBAL_CONSTANTS.LE_SET_USER, (userObject: UserIF)=> {
-      console.log('local event tiggered setUserStatus()');
       setUserStatus(PRESENCE_STATES.ONLINE, ctx);
     }
   );
   
-  //
   // more info - https://github.com/soixantecircuits/idle-js
-  //
   const idleJs = require("idle-js");
   new idleJs(
     {
@@ -75,22 +67,18 @@ function initPresence(ctx) {
       events: ['mousemove', 'keydown', 'mousedown', 'touchstart'],
       // callback function to be executed after idle time
       onIdle: function () {
-        console.log('IDLE');
         setUserStatus(PRESENCE_STATES.IDLE, ctx);
       },
       // callback function to be executed after back form idleness
       onActive: function () {
-        console.log('ACTIVE');
         setUserStatus(PRESENCE_STATES.ONLINE, ctx);
       },
       // callback function to be executed when window become hidden
       onHide: function () {
-        console.log('HIDE');
         setUserStatus(PRESENCE_STATES.AWAY, ctx)
       },
       // callback function to be executed when window become visible
       onShow: function () {
-        console.log('SHOW');
         setUserStatus(PRESENCE_STATES.ONLINE, ctx)
       },
       keepTracking: true, // set it to false of you want to track only once
@@ -105,6 +93,7 @@ function setUserStatus(status: string, ctx: any) {
   currentStatus = status;
   
   if (ctx.isUserSet() && !ctx.getUser().isAnonymous) {
+    
     const presenceObject: PresenceIF = {
       status: status,
       user: ctx.getUser(),
@@ -115,13 +104,13 @@ function setUserStatus(status: string, ctx: any) {
     // old key!
     myUserRef.set(presenceObject);
     
-    console.log(`setUserStatus: ` + JSON.stringify(presenceObject));
   } else {
-    console.log('setUserStatus: not possible since user is anonymous!');
+    
+    // no-op! user has to be signed in
+    
   }
   
 }
-
 
 function _getConnectedStateRef(ctx) {
   return ctx.getDatabase()
