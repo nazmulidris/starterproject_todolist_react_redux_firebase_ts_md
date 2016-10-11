@@ -149,6 +149,9 @@ function _saveUserAccountDataAndSetUser(ctx, user) {
   ctx.getReduxStore()
      .dispatch(actions.action_set_state_user(userObject));
   
+  // fire a local event in case anyone wants to know about the login state change
+  ctx.emit(GLOBAL_CONSTANTS.LE_SET_USER, userObject);
+  
   // load the rest of the data from firebase
   _loadDataForUserAndAttachListenerToFirebase(ctx);
   

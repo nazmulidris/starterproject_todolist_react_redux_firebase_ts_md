@@ -20,6 +20,11 @@ interface ChatMessageIF {
   photoURL: string,
 }
 
+interface PresenceIF {
+  status: string,
+  user: UserIF,
+}
+
 /** holds information about the user who is signed in */
 interface AuthStateIF {
   old_uid?: string;
@@ -62,4 +67,5 @@ export {
   ReduxStateIF,
   ReduxActionIF,
   ChatMessageIF,
+  PresenceIF,
 }

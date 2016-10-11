@@ -10,6 +10,7 @@ import {createStore} from 'redux';
 import * as reducers from './reducers';
 import * as actions from './actions';
 import * as persistence from './firebase';
+import * as presence from './presence';
 
 const lodash = require('lodash');
 const events = require("events");
@@ -51,6 +52,9 @@ class ApplicationContext {
     
     // setup firebase auth
     persistence.initAuth(this);
+    
+    // setup firebase presence
+    presence.initPresence(this);
     
   }
   
