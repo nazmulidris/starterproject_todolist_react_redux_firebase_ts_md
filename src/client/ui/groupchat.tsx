@@ -44,7 +44,9 @@ export class GroupChat extends React.Component<Props, {}> {
   
   rcvMsgFromServer(data: ChatMessageIF) {
     const {chatMessageList} = this.state;
-    chatMessageList.push(data);
+    let copy = lodash.clone(chatMessageList);
+    copy.push(data);
+    this.setState({chatMessageList: copy});
   }
   
   render() {
