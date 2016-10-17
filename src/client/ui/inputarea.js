@@ -80,7 +80,7 @@ class InputArea extends Component {
   
   /** used to check for ENTER key presses */
   onKeyPress(e) {
-    
+  
     // ENTER is pressed
     if (e.key == 'Enter') {
       // get user input
@@ -107,6 +107,7 @@ class InputArea extends Component {
               timeStamp: new Date().getTime(),
               displayName: user.displayName,
               photoURL: user.photoURL,
+              sessionId: applicationContext.getSessionId(),
             };
             app.sndMsgToServer(chatMessage);
           }else {

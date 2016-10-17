@@ -92,7 +92,7 @@ if (!lodash.isNil(socketio))
       socket.on(
         GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_CLIENT,
         (data)=> {
-          console.log("Received message from client: " + data);
+          console.log("Received message from client: " + JSON.stringify(data));
           // socket.broadcast.emit(GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, data);
           // socket.emit(GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, data);
           socketio.sockets.emit(GLOBAL_CONSTANTS.REMOTE_MESSAGE_FROM_SERVER, data)

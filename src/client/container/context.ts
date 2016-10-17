@@ -220,6 +220,10 @@ class ApplicationContext {
   
   /** convenience method to emit an event to the server */
   emitToServer(eventName, payload) {
+    if (LOGGING_ENABLED) {
+      console.log(`emitToServer: eventName ${eventName} fired`);
+      console.dir(payload);
+    }
     this.socket.emit(eventName, payload);
   }
   

@@ -18,6 +18,7 @@ interface ChatMessageIF {
   timestamp: number,
   displayName: string,
   photoURL: string,
+  sessionId: string,
 }
 
 interface PresenceIF {
