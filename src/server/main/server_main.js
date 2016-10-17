@@ -9,7 +9,7 @@
  *        prod: port 80
  */
 
-const GLOBAL_CONSTANTS = require('../global/constants').GLOBAL_CONSTANTS;
+const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 
 /**
  * get the NODE_ENV environment var value from node -
@@ -63,11 +63,13 @@ if (isProduction) {
   const port = process.env.PORT || 3333;
   const app = express();
   
-  app.use(express.static(__dirname));
+  let root_dir = __dirname + '/../static_content/';
+  
+  app.use(express.static(root_dir));
   
   app.get(
     "*", (req, res)=> {
-      res.sendFile(path.resolve(__dirname, "index.html"));
+      res.sendFile(path.resolve(root_dir, "index.html"));
     }
   );
   

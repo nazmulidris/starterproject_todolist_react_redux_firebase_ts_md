@@ -44,9 +44,9 @@
     "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
-    "dev": "webpack-dev-server --content-base src/server/ & node_modules/.bin/nodemon src/server/server.js",
+    "dev": "webpack-dev-server --content-base src/server/static_content/ & node_modules/.bin/nodemon src/server/main/server_main.js",
     "postinstall": "webpack -p",
-    "start": "NODE_ENV=production node src/server/server.js"
+    "start": "NODE_ENV=production node src/server/main/server_main.js"
   },
   "author": "Nazmul Idris",
   "license": "Apache-2.0",
