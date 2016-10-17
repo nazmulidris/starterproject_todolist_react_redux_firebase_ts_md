@@ -120,6 +120,8 @@ function setUserStatus(status: string, ctx: any) {
   
   if (ctx.isUserSet() && !ctx.getUser().isAnonymous) {
     
+    // user must be signed in ...
+    
     const presenceObject: PresenceIF = {
       status: status,
       user: ctx.getUser(),

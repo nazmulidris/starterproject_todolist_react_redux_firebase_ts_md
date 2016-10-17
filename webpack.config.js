@@ -7,7 +7,7 @@ module.exports = {
     './src/client/main.js'
   ],
   output: {
-    path: './src/server/',
+    path: './src/server/client_dist/',
     filename: 'bundle.js'
   },
   devServer: {
