@@ -11,7 +11,7 @@ If you have a Mac and don't have `node` installed, then get `brew` and install `
 Initial Setup
 -------------
 * Go to the folder when you downloaded this project from github and run the following:
-* `npm install babel webpack webpack-dev-server typescript typings -g`
+* `npm install react-native-cli babel webpack webpack-dev-server typescript typings -g`
 * `typings install dt~node --global --save`
 * `npm install`
 * [more info on Node + Typescript](https://basarat.gitbooks.io/typescript/content/docs/quick/nodejs.html)
