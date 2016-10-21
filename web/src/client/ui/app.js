@@ -6,7 +6,7 @@ import {GroupChat} from './groupchat';
 
 import {connect} from 'react-redux';
 import * as actions from '../container/actions';
-import {applicationContext, bindActionCreatorsToFirebase} from '../container/context';
+import {applicationContext, bindActionCreators} from '../container/context';
 
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 
@@ -89,7 +89,7 @@ const muiTheme = getMuiTheme(
         user: state.user
       }
   },
-  (dispatch) => bindActionCreatorsToFirebase(actions, dispatch, applicationContext)
+  (dispatch) => bindActionCreators(actions, dispatch, applicationContext)
 )
 
 class App extends Component {

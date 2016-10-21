@@ -332,7 +332,7 @@ function _bindActionCreator(actionCreator, dispatch, ctx) {
   };
 }
 
-function bindActionCreatorsToFirebase(actionCreators, dispatch, ctx) {
+function bindActionCreators(actionCreators, dispatch, ctx) {
   if (typeof actionCreators === 'function') {
     return _bindActionCreator(actionCreators, dispatch, ctx);
   }
@@ -362,4 +362,4 @@ function bindActionCreatorsToFirebase(actionCreators, dispatch, ctx) {
 const applicationContext = new ApplicationContext();
 
 /** export the singleton */
-export {applicationContext, bindActionCreatorsToFirebase}
+export {applicationContext, bindActionCreators}
