@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">R3BL Todo List</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_account">Login</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="fragment_title">Fragment Title Default</string>
+    <string name="fragment_description">Fragment Description Default</string>
+</resources>
