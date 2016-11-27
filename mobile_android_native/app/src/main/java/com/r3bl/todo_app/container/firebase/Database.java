@@ -2,6 +2,7 @@ package com.r3bl.todo_app.container.firebase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,22 +41,46 @@ public FirebaseDatabase getDatabase() {
   return _db;
 }
 
-public void saveUserAndLoadData(User userObject) {
+public void saveUserAndLoadData(UserInfo firebaseUser) {
+  // check to see whether SetUser should be fired or not
+  _dispatchSetUserAction(firebaseUser);
 
+  // load the data for the user
+  _loadDataForUserAndAttachListenerToFirebase(firebaseUser.getUid());
+}
+
+private void _saveUserObjectToFirebase(UserInfo firebaseUser) {
   // save the userObject to firebase
   DatabaseReference rootRef = _db.getReference()
                                  .child(Locations.USER_ACCOUNT_ROOT.name())
-                                 .child(userObject.uid);
-  rootRef.setValue(userObject);
-  App.log("Database.saveUserAndLoadData",
-          "saving userObject to Firebase, uid:" + userObject.uid);
+                                 .child(firebaseUser.getUid());
+  rootRef.setValue(firebaseUser);
+  App.log("Database._saveUserObjectToFirebase",
+          "saving User object to Firebase, uid:" + firebaseUser.getUid());
+}
 
-  // dispatch a redux action to set the user object
-  _ctx.getReduxStore().dispatch(new Actions.SetUser(userObject));
+private void _dispatchSetUserAction(UserInfo userInfo) {
+  // check to see whether SetUser action should be dispatched
+  User firebaseUser = new User(userInfo);
+  User localUser = _ctx.getReduxState().user;
 
-  // load the data for the user
-  _loadDataForUserAndAttachListenerToFirebase(userObject.uid);
+  if (!firebaseUser.equals(localUser)) {
+    App.log("Database._dispatchSetUserAction",
+            "Local user and Firebase user are not the same",
+            "1) dispatching SetUser action, ",
+            "2) Saving the user object to Firebase");
 
+    // dispatch a redux action to set the user object
+    _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
+
+    // check to see if the firebase userobject should be saved
+    _saveUserObjectToFirebase(userInfo);
+
+  } else {
+    App.log("Database._dispatchSetUserAction",
+            "Local user and Firebase user are the same - will not dispatch SetUser action",
+            firebaseUser.toString(), localUser.toString());
+  }
 }
 
 private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
@@ -93,21 +118,23 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
     String sessionIdFromFirebase = dataObject.sessionId;
     String localSessionId = _ctx.getSessionId();
 
-    App.log("Database._processUpdateFromFirebase",
-            "comparing session ids:", sessionIdFromFirebase, localSessionId);
+//    App.log("Database._processUpdateFromFirebase",
+//            "comparing session ids:", sessionIdFromFirebase, localSessionId);
 
     if (!sessionIdFromFirebase.equals(localSessionId)) {
 
       // dispatch a redux action to set the data object
       _ctx.getReduxStore().dispatch(new Actions.SetData(dataObject));
       App.log("Database._processUpdateFromFirebase",
-              "load dataObject from Firebase", dataObject.toString());
+              "local and firebase sessionIds do NOT match",
+              "dispatching SetData action", dataObject.toString());
 
     } else {
 
       // don't dispatch
       App.log("Database._processUpdateFromFirebase",
-              "ignoring dataObject from Firebase, since I made this change",
+              "local and firebase sessionIds are the SAME",
+              "will NOT dispatch SetData action, since I already applied it locally",
               dataObject.toString());
 
     }
@@ -115,7 +142,7 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
   } else {
     // nothing to dispatch
     App.log("Database._processUpdateFromFirebase]",
-            "no dataObject found in Firebase");
+            "no data object found in Firebase");
   }
 
 }

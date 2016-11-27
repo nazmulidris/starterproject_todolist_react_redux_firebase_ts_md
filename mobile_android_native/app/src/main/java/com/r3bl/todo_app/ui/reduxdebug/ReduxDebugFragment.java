@@ -3,12 +3,14 @@ package com.r3bl.todo_app.ui.reduxdebug;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.brianegan.bansa.Subscription;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
@@ -24,6 +26,7 @@ public class ReduxDebugFragment extends Fragment {
 
 protected TextView             titleTextView;
 private   ReduxDebugLogAdapter adapter;
+private   Subscription         subscriber;
 
 public ReduxDebugFragment() {
   // need a default constructor
@@ -47,11 +50,20 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
   return view;
 }
 
+@Override
+public void onDestroyView() {
+  if (subscriber != null) subscriber.unsubscribe();
+  App.log("ReduxDebugFragment", "onDestroyView: [RAN]");
+  super.onDestroyView();
+}
+
 private void _setupRecyclerView(View view, App ctx) {
   RecyclerView rv = (RecyclerView) view.findViewById(R.id.recyclerView);
   adapter = new ReduxDebugLogAdapter(ctx);
   rv.setAdapter(adapter);
   rv.setLayoutManager(new LinearLayoutManager(ctx));
+  rv.setHasFixedSize(true);
+  rv.addItemDecoration(new DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL));
 }
 
 //
@@ -85,13 +97,12 @@ private void _updateUI(App ctx) {
 }
 
 private void _bindToReduxState(App ctx) {
-  App.log("ReduxDebugFragment", "_bindToReduxState: [START]");
-  ctx.getReduxStore().subscribe(state -> {
+  subscriber = ctx.getReduxStore().subscribe(state -> {
     App.log("ReduxDebugFragment", "redux state changed");
     // update the UI w/ stuff in the state object
     _updateUI(ctx);
   });
-  App.log("ReduxDebugFragment", "_bindToReduxState: [END]");
+  App.log("ReduxDebugFragment", "_bindToReduxState: [RAN]");
 }
 
 }// end class ReduxDebugFragment

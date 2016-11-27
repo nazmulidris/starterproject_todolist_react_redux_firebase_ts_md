@@ -3,8 +3,8 @@ package com.r3bl.todo_app.container.firebase;
 import android.support.annotation.NonNull;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.r3bl.todo_app.container.App;
-import com.r3bl.todo_app.container.redux.state.User;
 
 /**
  * Created by nazmul on 11/8/16.
@@ -46,14 +46,8 @@ public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 
 }
 
-private void _processUserLogin(FirebaseUser user) {
-  try {
-    User userObject = new User(user);
-    if (!userObject.equals(_ctx.getReduxState().user)) {
-      _ctx.getDatabase().saveUserAndLoadData(userObject);
-    }
-  } catch (Exception e) {
-  }
+private void _processUserLogin(UserInfo user) {
+  _ctx.getDatabase().saveUserAndLoadData(user);
 }
 
 private void _forceAnonSignIn() {
