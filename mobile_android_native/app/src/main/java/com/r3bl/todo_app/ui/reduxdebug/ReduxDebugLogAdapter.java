@@ -44,10 +44,8 @@ public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 @Override
 public void onBindViewHolder(ViewHolder holder, int position) {
   ReduxDebugLog.HistoryEntry row = _list.get(position);
-  StringBuffer sb = new StringBuffer();
-  sb.append("Time:").append(row.time)
-    .append(", Action:").append(row.actionParam.getClass().getSimpleName());
-  holder.text.setText(sb.toString());
+  holder.text_time.setText("Time:"+row.time);
+  holder.text_description.setText("Action:"+row.actionParam.getClass().getSimpleName());
 }
 
 @Override
@@ -60,12 +58,14 @@ public int getItemCount() {
 //
 
 public class ViewHolder extends RecyclerView.ViewHolder {
-  public TextView text;
+  public TextView text_description;
+  public TextView text_time;
   public Button   button;
 
   public ViewHolder(View itemView) {
     super(itemView);
-    text = (TextView) itemView.findViewById(R.id.text);
+    text_description = (TextView) itemView.findViewById(R.id.text_description);
+    text_time = (TextView) itemView.findViewById(R.id.text_time);
     button = (Button) itemView.findViewById(R.id.button);
   }
 }
