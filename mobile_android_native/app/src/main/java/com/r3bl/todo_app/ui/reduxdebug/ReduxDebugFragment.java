@@ -24,8 +24,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class ReduxDebugFragment extends Fragment {
 
-protected TextView             titleTextView;
-private   ReduxDebugLogAdapter adapter;
+protected TextView             text_time;
+protected TextView             text_sessionId;
+private   ReduxDebugLogAdapter rv_adapter;
 private   Subscription         subscriber;
 
 public ReduxDebugFragment() {
@@ -39,7 +40,8 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
 
   View view = inflater.inflate(R.layout.debug_layout_recyclerview, container, false);
 
-  titleTextView = (TextView) view.findViewById(R.id.titleText);
+  text_time = (TextView) view.findViewById(R.id.text_time);
+  text_sessionId = (TextView) view.findViewById(R.id.text_sessionId);
 
   _updateUI(ctx);
 
@@ -58,9 +60,9 @@ public void onDestroyView() {
 }
 
 private void _setupRecyclerView(View view, App ctx) {
-  RecyclerView rv = (RecyclerView) view.findViewById(R.id.recyclerView);
-  adapter = new ReduxDebugLogAdapter(ctx);
-  rv.setAdapter(adapter);
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.recycler_view);
+  rv_adapter = new ReduxDebugLogAdapter(ctx);
+  rv.setAdapter(rv_adapter);
   rv.setLayoutManager(new LinearLayoutManager(ctx));
   rv.setHasFixedSize(true);
   rv.addItemDecoration(new DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL));
@@ -72,7 +74,7 @@ private void _setupRecyclerView(View view, App ctx) {
 
 @Subscribe(threadMode = ThreadMode.MAIN)
 public void onMessageEvent(ReduxDebugLog.Event event) {
-  adapter.notifyDataSetChanged();
+  rv_adapter.notifyDataSetChanged();
 }
 
 @Override
@@ -92,8 +94,8 @@ public void onStop() {
 //
 
 private void _updateUI(App ctx) {
-  titleTextView.setText(String.format("Redux state changed at: %s",
-                                      ctx.getTime()));
+  text_time.setText(String.format("State change @: %s",
+                                  ctx.getTime()));
 }
 
 private void _bindToReduxState(App ctx) {

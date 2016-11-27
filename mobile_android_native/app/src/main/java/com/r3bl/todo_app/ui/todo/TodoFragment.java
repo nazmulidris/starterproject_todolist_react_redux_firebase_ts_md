@@ -12,8 +12,8 @@ import com.r3bl.todo_app.todoapp.R;
 
 
 public class TodoFragment extends Fragment {
-protected TextView     titleTextView;
-protected TextView     descriptionTextView;
+protected TextView     text_title;
+protected TextView     text_description;
 private   Subscription subscriber;
 
 public TodoFragment() {
@@ -27,8 +27,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 
   View view = inflater.inflate(R.layout.fragment_groupchat_layout, container, false);
 
-  titleTextView = (TextView) view.findViewById(R.id.titleText);
-  descriptionTextView = (TextView) view.findViewById(R.id.descriptionText);
+  text_title = (TextView) view.findViewById(R.id.text_title);
+  text_description = (TextView) view.findViewById(R.id.text_description);
 
   _updateUI(ctx);
 
@@ -55,9 +55,9 @@ private void _bindToReduxState(App ctx) {
 }
 
 private void _updateUI(App ctx) {
-  titleTextView.setText(String.format("redux state changed at: %s",
-                                      ctx.getTime()));
-  descriptionTextView.setText(ctx.getReduxState().toString());
+  text_title.setText(String.format("redux state changed at: %s",
+                                   ctx.getTime()));
+  text_description.setText(ctx.getReduxState().toString());
 }
 
 }// end class TodoFragment

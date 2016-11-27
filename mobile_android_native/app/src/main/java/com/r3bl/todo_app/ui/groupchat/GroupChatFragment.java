@@ -13,8 +13,8 @@ import com.r3bl.todo_app.todoapp.R;
 
 public class GroupChatFragment extends Fragment {
 
-protected TextView     titleTextView;
-protected TextView     descriptionTextView;
+protected TextView     text_title;
+protected TextView     text_description;
 private   Subscription subscriber;
 
 public GroupChatFragment() {
@@ -28,11 +28,11 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 
   View view = inflater.inflate(R.layout.fragment_groupchat_layout, container, false);
 
-  titleTextView = (TextView) view.findViewById(R.id.titleText);
-  descriptionTextView = (TextView) view.findViewById(R.id.descriptionText);
+  text_title = (TextView) view.findViewById(R.id.text_title);
+  text_description = (TextView) view.findViewById(R.id.text_description);
 
-  titleTextView.setText("GroupChatFragment");
-  descriptionTextView.setText("Group chat details");
+  text_title.setText("GroupChatFragment");
+  text_description.setText("Group chat details");
 
   _bindToReduxState(ctx);
 

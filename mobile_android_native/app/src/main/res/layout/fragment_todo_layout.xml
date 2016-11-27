@@ -6,14 +6,14 @@
     tools:context="com.r3bl.todo_app.ui.groupchat.GroupChatFragment">
 
     <TextView
-        android:id="@+id/titleText"
+        android:id="@+id/text_title"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:text="@string/fragment_title"
         tools:layout_constraintTop_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toTopOf="@+id/descriptionText"
+        app:layout_constraintBottom_toTopOf="@+id/text_description"
         android:layout_marginStart="7dp"
         android:layout_marginEnd="7dp"
         app:layout_constraintRight_toRightOf="parent"
@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/descriptionText"
+        android:id="@+id/text_description"
         android:layout_width="0dp"
         android:layout_height="63dp"
         android:text="@string/fragment_description"
