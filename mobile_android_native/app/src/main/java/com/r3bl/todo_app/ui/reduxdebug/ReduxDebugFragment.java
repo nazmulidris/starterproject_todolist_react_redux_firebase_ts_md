@@ -26,6 +26,7 @@ protected TextView             titleTextView;
 private   ReduxDebugLogAdapter adapter;
 
 public ReduxDebugFragment() {
+  // need a default constructor
 }
 
 @Override
