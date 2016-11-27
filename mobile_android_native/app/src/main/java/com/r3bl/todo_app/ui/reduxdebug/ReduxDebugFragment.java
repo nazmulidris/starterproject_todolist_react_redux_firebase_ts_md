@@ -3,12 +3,18 @@ package com.r3bl.todo_app.ui.reduxdebug;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.r3bl.todo_app.container.App;
+import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by nazmul on 11/13/16.
@@ -16,8 +22,8 @@ import com.r3bl.todo_app.todoapp.R;
 
 public class ReduxDebugFragment extends Fragment {
 
-protected TextView titleTextView;
-protected TextView descriptionTextView;
+protected TextView             titleTextView;
+private   ReduxDebugLogAdapter adapter;
 
 public ReduxDebugFragment() {
 }
@@ -27,22 +33,54 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
   App ctx = (App) getActivity().getApplicationContext();
 
-  View view = inflater.inflate(R.layout.debug_layout, container, false);
+  View view = inflater.inflate(R.layout.debug_layout_recyclerview, container, false);
 
   titleTextView = (TextView) view.findViewById(R.id.titleText);
-  descriptionTextView = (TextView) view.findViewById(R.id.descriptionText);
 
   _updateUI(ctx);
 
   _bindToReduxState(ctx);
 
+  _setupRecyclerView(view, ctx);
+
   return view;
 }
+
+private void _setupRecyclerView(View view, App ctx) {
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.recyclerView);
+  adapter = new ReduxDebugLogAdapter(ctx);
+  rv.setAdapter(adapter);
+  rv.setLayoutManager(new LinearLayoutManager(ctx));
+}
+
+//
+// Event bus stuff
+//
+
+@Subscribe(threadMode = ThreadMode.MAIN)
+public void onMessageEvent(ReduxDebugLog.Event event) {
+  adapter.notifyDataSetChanged();
+}
+
+@Override
+public void onStart() {
+  super.onStart();
+  EventBus.getDefault().register(this);
+}
+
+@Override
+public void onStop() {
+  EventBus.getDefault().unregister(this);
+  super.onStop();
+}
+
+//
+// Render stuff
+//
 
 private void _updateUI(App ctx) {
   titleTextView.setText(String.format("Redux state changed at: %s",
                                       ctx.getTime()));
-  descriptionTextView.setText(ctx.getReduxLog().toString());
 }
 
 private void _bindToReduxState(App ctx) {

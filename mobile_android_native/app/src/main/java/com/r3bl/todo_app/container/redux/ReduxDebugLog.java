@@ -2,6 +2,7 @@ package com.r3bl.todo_app.container.redux;
 
 import com.brianegan.bansa.Action;
 import com.r3bl.todo_app.container.redux.state.State;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
@@ -10,7 +11,7 @@ import java.util.ArrayList;
  */
 public class ReduxDebugLog {
 
-private final ArrayList<HistoryEntry> _stateHistory;
+public ArrayList<HistoryEntry> _stateHistory;
 
 public ReduxDebugLog() {
   _stateHistory = new ArrayList<HistoryEntry>();
@@ -22,7 +23,7 @@ public void push(String time,
                  State newState) {
 
   _stateHistory.add(new HistoryEntry(time, oldState, actionParam, newState));
-
+  EventBus.getDefault().post(new Event());
 }
 
 @Override
@@ -35,10 +36,10 @@ public String toString() {
 }
 
 public class HistoryEntry {
-  private final String time;
-  private final State  oldState;
-  private final Action actionParam;
-  private final State  newState;
+  public String time;
+  public State  oldState;
+  public Action actionParam;
+  public State  newState;
 
   public HistoryEntry(String time,
                       State oldState,
@@ -63,6 +64,12 @@ public class HistoryEntry {
     return sb.toString();
   }
 
+}
+
+//
+// MessageEvent fired over EventBus
+//
+public class Event {
 }
 
 }// end class MyApplicationReduxLog
