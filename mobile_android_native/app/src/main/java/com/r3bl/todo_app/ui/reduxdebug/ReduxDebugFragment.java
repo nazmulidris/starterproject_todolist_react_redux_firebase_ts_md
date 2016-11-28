@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.brianegan.bansa.Subscription;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
@@ -79,8 +80,38 @@ public void onMessageEvent(ReduxDebugLog.LE_StateAddedToReduxDebugLog event) {
 
 @Subscribe(threadMode = ThreadMode.MAIN)
 public void onMessageEvent(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+  _showUsingMyDialogFragment(event);
+  //_showUsingMaterialDesignDialogs(event);
+}
+
+private void _showUsingMyDialogFragment(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
   DebugDetailsDialogFragment.newInstance(event.position)
                             .show(getFragmentManager(), "dialog");
+}
+
+/**
+ * more info - https://guides.codepath.com/android/Using-DialogFragment#full-screen-dialog
+ * more info - https://github.com/afollestad/material-dialogs
+ */
+private void _showUsingMaterialDesignDialogs(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+  StringBuilder sb = new StringBuilder();
+  sb.append(">>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(">> ACTION: ")
+    .append("\n>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(event.entry.actionParam.toString())
+    .append("\n>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(">> OLD STATE: ")
+    .append("\n>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(event.entry.oldState.toString())
+    .append("\n>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(">> NEW STATE: ")
+    .append("\n>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    .append(event.entry.newState.toString());
+
+  new MaterialDialog.Builder(getActivity())
+    .title(String.format("State @ %s", event.entry.time))
+    .content(sb.toString())
+    .show();
 }
 
 @Override

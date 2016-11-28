@@ -46,6 +46,7 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.afollestad.material-dialogs:core:0.9.1.0'
     testCompile 'junit:junit:4.12'
 }
 

@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
@@ -32,12 +33,14 @@ public static DebugDetailsDialogFragment newInstance(int position) {
   return fragment;
 }
 
+/**
+ * more info - https://guides.codepath.com/android/Using-DialogFragment#full-screen-dialog
+ */
 @Nullable
 @Override
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-
   View view = inflater.inflate(R.layout.debug_dialog_layout, container);
 
   text_title = (TextView) view.findViewById(R.id.text_title);
@@ -55,7 +58,21 @@ public View onCreateView(LayoutInflater inflater,
     text_description.setText(sb.toString());
   }
 
+  setStyle(STYLE_NORMAL, R.style.Dialog_FullScreen);
+
   return view;
+}
+
+@Override
+public void onResume() {
+// Get existing layout params for the window
+  ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
+  // Assign window properties to fill the parent
+  params.width = WindowManager.LayoutParams.MATCH_PARENT;
+  params.height = WindowManager.LayoutParams.MATCH_PARENT;
+  getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+  // Call super onResume after sizing
+  super.onResume();
 }
 
 }// end class DebugDetailsDialogFragment
