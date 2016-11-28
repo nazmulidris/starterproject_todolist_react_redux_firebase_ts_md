@@ -131,10 +131,10 @@ public void onStop() {
 //
 
 private void _updateUI(App ctx) {
-  text_time.setText(String.format("Change @ %s",
+  text_time.setText(String.format("CHG: %s",
                                   ctx.getTime()));
   String sessionId = ctx.getSessionId();
-  text_sessionId.setText(String.format("Sess ID: %s...%s",
+  text_sessionId.setText(String.format("SID: %s...%s",
                                        sessionId.substring(0, 6),
                                        sessionId.substring(sessionId.length() - 6)));
 }

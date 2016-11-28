@@ -39,7 +39,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="16dp"
         android:fillViewport="true"
-        android:clipToPadding="true">
+        android:clipToPadding="true"
+        android:paddingTop="8dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
