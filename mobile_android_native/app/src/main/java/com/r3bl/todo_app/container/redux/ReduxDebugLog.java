@@ -23,7 +23,7 @@ public void push(String time,
                  State newState) {
 
   _stateHistory.add(new HistoryEntry(time, oldState, actionParam, newState));
-  EventBus.getDefault().post(new Event());
+  EventBus.getDefault().post(new LE_StateAddedToReduxDebugLog());
 }
 
 @Override
@@ -69,7 +69,7 @@ public class HistoryEntry {
 //
 // MessageEvent fired over EventBus
 //
-public class Event {
+public class LE_StateAddedToReduxDebugLog {
 }
 
 }// end class MyApplicationReduxLog

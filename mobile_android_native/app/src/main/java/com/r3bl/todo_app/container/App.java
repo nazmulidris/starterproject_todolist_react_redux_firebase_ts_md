@@ -77,6 +77,10 @@ private void _initDatabase() {
 //
 // Utility
 //
+public static App getContext(Object activity) {
+  return (App)activity;
+}
+
 public String getTime() {
   return DateFormat.getTimeInstance().format(new Date());
 }

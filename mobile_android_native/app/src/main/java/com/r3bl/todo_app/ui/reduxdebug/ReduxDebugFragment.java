@@ -73,8 +73,14 @@ private void _setupRecyclerView(View view, App ctx) {
 //
 
 @Subscribe(threadMode = ThreadMode.MAIN)
-public void onMessageEvent(ReduxDebugLog.Event event) {
+public void onMessageEvent(ReduxDebugLog.LE_StateAddedToReduxDebugLog event) {
   rv_adapter.notifyDataSetChanged();
+}
+
+@Subscribe(threadMode = ThreadMode.MAIN)
+public void onMessageEvent(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+  DebugDetailsDialogFragment.newInstance(event.position)
+                            .show(getFragmentManager(), "dialog");
 }
 
 @Override
@@ -94,8 +100,12 @@ public void onStop() {
 //
 
 private void _updateUI(App ctx) {
-  text_time.setText(String.format("State change @: %s",
+  text_time.setText(String.format("Change @ %s",
                                   ctx.getTime()));
+  String sessionId = ctx.getSessionId();
+  text_sessionId.setText(String.format("Sess ID: %s...%s",
+                                       sessionId.substring(0, 6),
+                                       sessionId.substring(sessionId.length() - 6)));
 }
 
 private void _bindToReduxState(App ctx) {

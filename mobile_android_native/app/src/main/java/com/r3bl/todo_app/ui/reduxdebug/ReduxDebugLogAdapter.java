@@ -5,10 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
@@ -37,7 +37,7 @@ public ReduxDebugLogAdapter(App ctx) {
 @Override
 public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
   View view = LayoutInflater.from(_ctx)
-                            .inflate(R.layout.debug_layout_list_row, parent, false);
+                            .inflate(R.layout.debug_list_row_layout, parent, false);
   return new ViewHolder(view);
 }
 
@@ -74,12 +74,23 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickL
     int position = getAdapterPosition();
     if (position != RecyclerView.NO_POSITION) {
       ReduxDebugLog.HistoryEntry entry = _list.get(position);
-      Toast.makeText(_ctx, entry.toString(), Toast.LENGTH_SHORT).show();
+      EventBus.getDefault().post(new LE_ShowDialogWithHistoryEntryDetails(position, entry));
+      // Toast.makeText(_ctx, entry.toString(), Toast.LENGTH_SHORT).show();
     } else {
       // do nothing, since nothing is selected
     }
   }
 
 }// end class ViewHolder
+
+public class LE_ShowDialogWithHistoryEntryDetails {
+  public ReduxDebugLog.HistoryEntry entry;
+  public int                        position;
+
+  public LE_ShowDialogWithHistoryEntryDetails(int position, ReduxDebugLog.HistoryEntry entry) {
+    this.position = position;
+    this.entry = entry;
+  }
+}
 
 }// end class ReduxDebugLogAdapter
