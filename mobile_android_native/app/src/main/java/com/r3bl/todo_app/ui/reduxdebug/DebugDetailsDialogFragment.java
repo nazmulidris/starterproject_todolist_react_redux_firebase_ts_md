@@ -2,7 +2,7 @@ package com.r3bl.todo_app.ui.reduxdebug;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,7 @@ import com.r3bl.todo_app.todoapp.R;
  * Created by nazmul on 11/27/16.
  */
 
-public class DebugDetailsDialogFragment extends DialogFragment {
+public class DebugDetailsDialogFragment extends BottomSheetDialogFragment {
 
 private TextView text_title;
 private TextView text_description;
