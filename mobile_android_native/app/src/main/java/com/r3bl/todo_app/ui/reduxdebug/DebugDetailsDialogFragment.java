@@ -37,7 +37,6 @@ public static DebugDetailsDialogFragment newInstance(int position) {
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-  setStyle(STYLE_NO_TITLE, R.style.AppTheme_PopupOverlay);
 
   View view = inflater.inflate(R.layout.debug_dialog_layout, container);
 
