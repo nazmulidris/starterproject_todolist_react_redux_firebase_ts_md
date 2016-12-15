@@ -12,10 +12,6 @@ import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 /**
  * Created by nazmul on 11/27/16.
  */
@@ -57,8 +53,8 @@ public View onCreateView(LayoutInflater inflater,
     text_title.setText(historyEntry.time);
     StringBuilder sb = new StringBuilder();
     sb.append("Action: ").append(historyEntry.actionParam.toString());
-    sb.append("\nDiff: ").append(_diff(historyEntry.oldState.toString(),
-                                       historyEntry.newState.toString()));
+    sb.append("\nDiff: ").append(App.diff(historyEntry.oldState.toString(),
+                                          historyEntry.newState.toString()));
     sb.append("\nDiff Details: ").append(_diff2(historyEntry.oldState.toString(),
                                                 historyEntry.newState.toString()));
     sb.append("\nOld State: ").append(historyEntry.oldState.toString());
@@ -69,43 +65,6 @@ public View onCreateView(LayoutInflater inflater,
   setStyle(STYLE_NORMAL, R.style.Dialog_FullScreen);
 
   return view;
-}
-
-private String _diff(String text1, String text2) {
-  try {
-    StringTokenizer at = new StringTokenizer(text1, " ");
-    StringTokenizer bt = null;
-    int i = 0, token_count = 0;
-    String token = null;
-    boolean flag = false;
-    List<String> missingWords = new ArrayList<String>();
-    while (at.hasMoreTokens()) {
-      token = at.nextToken();
-      bt = new StringTokenizer(text2, " ");
-      token_count = bt.countTokens();
-      while (i < token_count) {
-        String s = bt.nextToken();
-        if (token.equals(s)) {
-          flag = true;
-          break;
-        } else {
-          flag = false;
-        }
-        i++;
-      }
-      i = 0;
-      if (flag == false)
-        missingWords.add(token);
-    }
-    List<String> retval = missingWords;
-    StringBuilder sb = new StringBuilder();
-    for (String s : retval) {
-      sb.append(s).append("\n");
-    }
-    return sb.toString();
-  } catch (Exception e) {
-    return "N/A";
-  }
 }
 
 private String _diff2(String text1, String text2) {

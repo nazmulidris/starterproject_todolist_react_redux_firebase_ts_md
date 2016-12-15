@@ -40,8 +40,13 @@ public State reduce(State state, Action actionParam) {
 
     ctx.getReduxLog().push(ctx.getTime(), state, actionParam, newState);
 
-    App.log("Reducer", "reduce: old state: " + state);
-    App.log("Reducer", "reduce: new state: " + newState);
+    App.log("Reducer", "applying action: " + actionParam.getClass().getSimpleName());
+    try {
+      App.log("Reducer", "state diff: ", App.diff(state.toString(), newState.toString()));
+    } catch (Exception e) {
+      App.log("Reducer", "reduce: old state: " + state);
+      App.log("Reducer", "reduce: new state: " + newState);
+    }
 
     return newState;
 

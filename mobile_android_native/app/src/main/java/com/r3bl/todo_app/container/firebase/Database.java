@@ -68,7 +68,8 @@ private void _dispatchSetUserAction(UserInfo userInfo) {
     App.log("Database._dispatchSetUserAction",
             "Local user and Firebase user are not the same",
             "1) dispatching SetUser action, ",
-            "2) Saving the user object to Firebase");
+            "2) Saving the user object to Firebase",
+            App.diff(firebaseUser.toString(), localUser.toString()));
 
     // dispatch a redux action to set the user object
     _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
@@ -78,8 +79,8 @@ private void _dispatchSetUserAction(UserInfo userInfo) {
 
   } else {
     App.log("Database._dispatchSetUserAction",
-            "Local user and Firebase user are the same - will not dispatch SetUser action",
-            firebaseUser.toString(), localUser.toString());
+            "Local user and Firebase user are the same - will not dispatch SetUser action");
+    //,App.diff(firebaseUser.toString(), localUser.toString()));
   }
 }
 
@@ -127,15 +128,16 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
       _ctx.getReduxStore().dispatch(new Actions.SetData(dataObject));
       App.log("Database._processUpdateFromFirebase",
               "local and firebase sessionIds do NOT match",
-              "dispatching SetData action", dataObject.toString());
+              "dispatching SetData action");
+      //, dataObject.toString());
 
     } else {
 
       // don't dispatch
       App.log("Database._processUpdateFromFirebase",
               "local and firebase sessionIds are the SAME",
-              "will NOT dispatch SetData action, since I already applied it locally",
-              dataObject.toString());
+              "will NOT dispatch SetData action, since I already applied it locally");
+      //,dataObject.toString());
 
     }
 

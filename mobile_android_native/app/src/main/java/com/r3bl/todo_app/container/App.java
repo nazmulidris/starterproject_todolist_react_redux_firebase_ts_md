@@ -11,8 +11,7 @@ import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.container.redux.state.State;
 
 import java.text.DateFormat;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by nazmul on 10/26/16.
@@ -78,7 +77,7 @@ private void _initDatabase() {
 // Utility
 //
 public static App getContext(Object activity) {
-  return (App)activity;
+  return (App) activity;
 }
 
 public String getTime() {
@@ -112,6 +111,45 @@ private static String _formatLogMessage(String line1_p1, String line2_p2, String
     sb.append("\n\t").append(s);
   }
   return sb.toString();
+}
+
+public static String diff(String text1, String text2) {
+  try {
+    StringTokenizer at = new StringTokenizer(text1, " ");
+    StringTokenizer bt = null;
+    int i = 0, token_count = 0;
+    String token = null;
+    boolean flag = false;
+    List<String> missingWords = new ArrayList<String>();
+    while (at.hasMoreTokens()) {
+      token = at.nextToken();
+      bt = new StringTokenizer(text2, " ");
+      token_count = bt.countTokens();
+      while (i < token_count) {
+        String s = bt.nextToken();
+        if (token.equals(s)) {
+          flag = true;
+          break;
+        } else {
+          flag = false;
+        }
+        i++;
+      }
+      i = 0;
+      if (flag == false)
+        missingWords.add(token);
+    }
+    List<String> list = missingWords;
+    StringBuilder sb = new StringBuilder();
+    for (String s : list) {
+      sb.append(s).append("\n");
+    }
+    String retval = sb.toString();
+    if (retval.trim().isEmpty()) return "N/A";
+    else return String.format("`%s`", retval);
+  } catch (Exception e) {
+    return "N/A";
+  }
 }
 
 //
