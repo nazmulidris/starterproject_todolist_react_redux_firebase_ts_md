@@ -25,7 +25,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 
   App ctx = (App) getActivity().getApplicationContext();
 
-  View view = inflater.inflate(R.layout.fragment_groupchat, container, false);
+  View view = inflater.inflate(R.layout.fragment_todo, container, false);
 
   text_title = (TextView) view.findViewById(R.id.text_title);
   text_description = (TextView) view.findViewById(R.id.text_description);
