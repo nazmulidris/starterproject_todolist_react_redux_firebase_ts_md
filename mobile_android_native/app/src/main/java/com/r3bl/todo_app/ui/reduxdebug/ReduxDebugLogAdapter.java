@@ -37,7 +37,7 @@ public ReduxDebugLogAdapter(App ctx) {
 @Override
 public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
   View view = LayoutInflater.from(_ctx)
-                            .inflate(R.layout.debug_list_row_layout, parent, false);
+                            .inflate(R.layout.debug_list_row, parent, false);
   return new ViewHolder(view);
 }
 

@@ -39,7 +39,7 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
   App ctx = (App) getActivity().getApplicationContext();
 
-  View view = inflater.inflate(R.layout.debug_layout_recyclerview, container, false);
+  View view = inflater.inflate(R.layout.debug_recyclerview, container, false);
 
   text_time = (TextView) view.findViewById(R.id.text_time);
   text_sessionId = (TextView) view.findViewById(R.id.text_sessionId);

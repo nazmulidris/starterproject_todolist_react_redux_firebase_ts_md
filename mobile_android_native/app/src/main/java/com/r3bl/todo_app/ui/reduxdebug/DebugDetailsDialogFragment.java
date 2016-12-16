@@ -41,7 +41,7 @@ public static DebugDetailsDialogFragment newInstance(int position) {
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-  View view = inflater.inflate(R.layout.debug_dialog_layout, container);
+  View view = inflater.inflate(R.layout.debug_dialog, container);
 
   text_title = (TextView) view.findViewById(R.id.text_title);
   text_description = (TextView) view.findViewById(R.id.text_description);
