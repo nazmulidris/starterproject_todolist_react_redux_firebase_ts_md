@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 http://www.androidhive.info/2016/05/android-working-with-card-view-and-recycler-view/
 -->
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,6 +27,7 @@ http://www.androidhive.info/2016/05/android-working-with-card-view-and-recycler-
             android:text="Time"
             android:textSize="@dimen/text_size" />
 
+        <!--for some reason, these text views aren't inheriting the apptheme's font size-->
         <TextView
             android:id="@+id/text_description"
             android:layout_width="match_parent"
