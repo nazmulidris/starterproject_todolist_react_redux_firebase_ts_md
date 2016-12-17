@@ -8,7 +8,8 @@
         android:id="@+id/text_title"
         android:layout_width="match_parent"
         android:layout_height="24dp"
-        android:text="@string/fragment_title" />
+        android:text="@string/fragment_title"
+        android:layout_marginBottom="4dp" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -22,6 +23,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/amber_100"
-            android:text="@string/fragment_description" />
+            android:text="@string/fragment_description"
+            android:fontFamily="monospace"
+            android:textSize="12sp" />
     </ScrollView>
 </LinearLayout>
