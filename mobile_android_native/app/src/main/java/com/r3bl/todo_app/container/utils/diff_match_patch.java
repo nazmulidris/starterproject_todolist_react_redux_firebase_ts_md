@@ -63,9 +63,9 @@ public static String diff(String text1, String text2) {
   StringBuilder sb = new StringBuilder();
   for (diff_match_patch.Diff d : deltas) {
     if (d.operation == diff_match_patch.Operation.DELETE)
-      sb.append("<del>").append(d.text).append("</del>");
+      sb.append("<font color=\"#990f16\"><del>").append(d.text).append("</del></font>");
     else if (d.operation == diff_match_patch.Operation.INSERT)
-      sb.append("<ins>").append(d.text).append("</ins>");
+      sb.append("<font color=\"#4d990f\"><ins>").append(d.text).append("</ins></font>");
     else
       sb.append(d.text);
   }
