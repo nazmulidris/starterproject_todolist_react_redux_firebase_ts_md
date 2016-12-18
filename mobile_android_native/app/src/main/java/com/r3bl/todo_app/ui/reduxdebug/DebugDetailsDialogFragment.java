@@ -3,6 +3,7 @@ package com.r3bl.todo_app.ui.reduxdebug;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
+
+import static com.r3bl.todo_app.container.utils.diff_match_patch.diff;
 
 /**
  * Created by nazmul on 11/27/16.
@@ -52,27 +55,18 @@ public View onCreateView(LayoutInflater inflater,
                                                  .getReduxLog()._stateHistory.get(position);
     text_title.setText(historyEntry.time);
     StringBuilder sb = new StringBuilder();
-    sb.append("Action: ").append(historyEntry.actionParam.toString());
-    sb.append("\nDiff: ").append(App.diff(historyEntry.oldState.toString(),
-                                          historyEntry.newState.toString()));
-    sb.append("\nDiff Details: ").append(_diff2(historyEntry.oldState.toString(),
+    sb.append("<h1>Action:</h1>").append(historyEntry.actionParam.toString());
+    sb.append("<h1>Diff:</h1>").append(diff(historyEntry.oldState.toString(),
                                                 historyEntry.newState.toString()));
-    sb.append("\nOld State: ").append(historyEntry.oldState.toString());
-    sb.append("\nNew State: ").append(historyEntry.newState.toString());
-    text_description.setText(sb.toString());
+    sb.append("<h1>Old State:</h1>").append(historyEntry.oldState.toString());
+    sb.append("<h1>New State:</h1><pre>").append(historyEntry.newState.toString()).append("</pre>");
+    text_description.setText(
+      Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_COMPACT));
   }
 
   setStyle(STYLE_NORMAL, R.style.Dialog_FullScreen);
 
   return view;
-}
-
-private String _diff2(String text1, String text2) {
-  try {
-    return StringComparisonUtil.getComparisonString(text1, text2);
-  } catch (Exception e) {
-    return "N/A";
-  }
 }
 
 @Override

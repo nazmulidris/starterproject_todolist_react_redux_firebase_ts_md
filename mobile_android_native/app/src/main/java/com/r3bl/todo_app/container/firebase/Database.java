@@ -12,6 +12,8 @@ import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
+import static com.r3bl.todo_app.container.utils.diff_match_patch.diff;
+
 /**
  * Created by nazmul on 11/8/16.
  */
@@ -69,7 +71,7 @@ private void _dispatchSetUserAction(UserInfo userInfo) {
             "Local user and Firebase user are not the same",
             "1) dispatching SetUser action, ",
             "2) Saving the user object to Firebase",
-            App.diff(firebaseUser.toString(), localUser.toString()));
+            diff(firebaseUser.toString(), localUser.toString()));
 
     // dispatch a redux action to set the user object
     _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
