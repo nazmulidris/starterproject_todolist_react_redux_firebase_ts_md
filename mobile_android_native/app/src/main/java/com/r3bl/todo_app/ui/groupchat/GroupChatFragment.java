@@ -28,8 +28,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 
   View view = inflater.inflate(R.layout.fragment_groupchat, container, false);
 
-  text_title = (TextView) view.findViewById(R.id.text_title);
-  text_description = (TextView) view.findViewById(R.id.text_description);
+  text_title = (TextView) view.findViewById(R.id.groupchat_text_title);
+  text_description = (TextView) view.findViewById(R.id.groupchat_text_description);
 
   text_title.setText("GroupChatFragment");
   text_description.setText("Group chat details");

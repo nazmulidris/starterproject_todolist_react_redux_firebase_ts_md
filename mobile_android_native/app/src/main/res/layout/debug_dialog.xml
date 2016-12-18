@@ -5,21 +5,20 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/text_title"
+        android:id="@+id/debug_text_title"
         android:layout_width="match_parent"
         android:layout_height="24dp"
         android:text="@string/fragment_title"
         android:layout_marginBottom="4dp" />
 
     <ScrollView
-        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="true"
         android:fillViewport="true">
 
         <TextView
-            android:id="@+id/text_description"
+            android:id="@+id/debug_text_description"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/amber_100"
@@ -27,4 +26,5 @@
             android:fontFamily="monospace"
             android:textSize="12sp" />
     </ScrollView>
+
 </LinearLayout>

@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 @Override
 protected void onCreate(Bundle savedInstanceState) {
   super.onCreate(savedInstanceState);
-  setContentView(R.layout.activity_main);
+  setContentView(R.layout.main_activity);
 
   // toolbar setup
   Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -47,10 +47,10 @@ protected void onCreate(Bundle savedInstanceState) {
               .show());
 
   // view pager setup
-  ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+  ViewPager viewPager = (ViewPager) findViewById(R.id.main_viewPager);
   ViewPagerAdapter myPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
   viewPager.setAdapter(myPagerAdapter);
-  CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
+  CircleIndicator indicator = (CircleIndicator) findViewById(R.id.main_indicator);
   indicator.setViewPager(viewPager);
 
 }
@@ -99,8 +99,8 @@ class ViewPagerAdapter extends FragmentPagerAdapter {
   }
 
   @Override
-  public Fragment getItem(int position) {
-    switch (position) {
+  public Fragment getItem(int tabPosition) {
+    switch (tabPosition) {
       case 0:
         return new TodoFragment();
       case 1:
@@ -117,8 +117,8 @@ class ViewPagerAdapter extends FragmentPagerAdapter {
   }
 
   @Override
-  public CharSequence getPageTitle(int position) {
-    switch (position) {
+  public CharSequence getPageTitle(int tabPosition) {
+    switch (tabPosition) {
       case 0:
         return "Todo List";
       case 1:
@@ -126,7 +126,7 @@ class ViewPagerAdapter extends FragmentPagerAdapter {
       case 2:
         return "Redux Debug";
     }
-    return super.getPageTitle(position);
+    return super.getPageTitle(tabPosition);
   }
 
 }

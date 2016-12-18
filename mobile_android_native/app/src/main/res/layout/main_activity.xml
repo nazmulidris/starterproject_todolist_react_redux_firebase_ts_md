@@ -15,10 +15,10 @@
         <include layout="@layout/main_appbar" />
 
         <me.relex.circleindicator.CircleIndicator
-            android:id="@+id/indicator"
-            android:background="?attr/colorPrimaryDark"
+            android:id="@+id/main_indicator"
             android:layout_width="match_parent"
-            android:layout_height="24dp"/>
+            android:layout_height="24dp"
+            android:background="?attr/colorPrimaryDark" />
 
         <include layout="@layout/main_viewpager" />
 

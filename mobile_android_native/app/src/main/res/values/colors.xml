@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="primaryDark">@color/light_blue_200</color>
+    <color name="primary">@color/light_blue_50</color>
+    <color name="accent">@color/light_blue_500</color>
+    <color name="textColor">@color/grey_800</color>
+
     <!-- Material Design - Color Palette -->
     <!-- Date: 1/15/2015 -->
     <!-- http://www.google.com/design/spec/style/color.html#color-color-palette -->

@@ -20,7 +20,7 @@ http://www.androidhive.info/2016/05/android-working-with-card-view-and-recycler-
         android:orientation="vertical">
         <!--for some reason, these text views aren't inheriting the apptheme's font size-->
         <TextView
-            android:id="@+id/text_time"
+            android:id="@+id/row_text_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
@@ -29,7 +29,7 @@ http://www.androidhive.info/2016/05/android-working-with-card-view-and-recycler-
 
         <!--for some reason, these text views aren't inheriting the apptheme's font size-->
         <TextView
-            android:id="@+id/text_description"
+            android:id="@+id/row_text_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Description"

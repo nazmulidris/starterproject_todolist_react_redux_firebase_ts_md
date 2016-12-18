@@ -3,26 +3,22 @@ package com.r3bl.todo_app.ui.reduxdebug;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.text.Html;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.TextView;
-import com.r3bl.todo_app.container.App;
-import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.todoapp.R;
-
-import static com.r3bl.todo_app.container.utils.diff_match_patch.diff;
+import me.relex.circleindicator.CircleIndicator;
 
 /**
+ * more info - https://guides.codepath.com/android/Using-DialogFragment#full-screen-dialog
  * Created by nazmul on 11/27/16.
  */
 
 public class DebugDetailsDialogFragment extends BottomSheetDialogFragment {
-
-private TextView text_title;
-private TextView text_description;
 
 public DebugDetailsDialogFragment() {
   // empty constructor is required
@@ -37,48 +33,77 @@ public static DebugDetailsDialogFragment newInstance(int position) {
 }
 
 /**
- * more info - https://guides.codepath.com/android/Using-DialogFragment#full-screen-dialog
+ * more info - https://stackoverflow.com/questions/19544829/viewpager-with-fragments-inside-popupwindow-or-dialogfragment-error-no-view/19552298#19552298
+ * You have to use the getChildFragmentManager() -> otherwise this doesn't work!!!
  */
 @Nullable
 @Override
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-  View view = inflater.inflate(R.layout.debug_dialog, container);
+  View view = inflater.inflate(R.layout.debug_pager, container, false);
 
-  text_title = (TextView) view.findViewById(R.id.text_title);
-  text_description = (TextView) view.findViewById(R.id.text_description);
-
+  // get the position int from the bundle
   int position = getArguments().getInt("position", -1);
-  if (position != -1) {
-    ReduxDebugLog.HistoryEntry historyEntry = App.getContext(getActivity().getApplicationContext())
-                                                 .getReduxLog()._stateHistory.get(position);
-    text_title.setText(historyEntry.time);
-    StringBuilder sb = new StringBuilder();
-    sb.append("<h1>Action:</h1>").append(historyEntry.actionParam.toString());
-    sb.append("<h1>Diff:</h1>").append(diff(historyEntry.oldState.toString(),
-                                                historyEntry.newState.toString()));
-    sb.append("<h1>Old State:</h1>").append(historyEntry.oldState.toString());
-    sb.append("<h1>New State:</h1><pre>").append(historyEntry.newState.toString()).append("</pre>");
-    text_description.setText(
-      Html.fromHtml(sb.toString(), Html.FROM_HTML_MODE_COMPACT));
-  }
 
-  setStyle(STYLE_NORMAL, R.style.Dialog_FullScreen);
-
+  // view pager setup
+  ViewPager viewPager = (ViewPager) view.findViewById(R.id.debug_view_pager);
+  //
+  // Note the use of getChildFragmentManager() since this is a dialogfragment!!!
+  // and not getFragmentManager()
+  //
+  ViewPagerAdapter myPagerAdapter =
+    new ViewPagerAdapter(getChildFragmentManager(), position);
+  viewPager.setAdapter(myPagerAdapter);
+  CircleIndicator indicator = (CircleIndicator) view.findViewById(R.id.debug_indicator);
+  indicator.setViewPager(viewPager);
   return view;
 }
 
-@Override
-public void onResume() {
-// Get existing layout params for the window
-  ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
-  // Assign window properties to fill the parent
-  params.width = WindowManager.LayoutParams.MATCH_PARENT;
-  params.height = WindowManager.LayoutParams.MATCH_PARENT;
-  getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-  // Call super onResume after sizing
-  super.onResume();
-}
+private class ViewPagerAdapter extends FragmentPagerAdapter {
+
+  private final int position;
+
+  public ViewPagerAdapter(FragmentManager fm, int position) {
+    super(fm);
+    this.position = position;
+  }
+
+  @Override
+  public Fragment getItem(int tabPosition) {
+    switch (tabPosition) {
+      case 0:
+        return StateFragment.newInstance(StateFragment.Type.Action, position);
+      case 1:
+        return StateFragment.newInstance(StateFragment.Type.Diff, position);
+      case 2:
+        return StateFragment.newInstance(StateFragment.Type.OldState, position);
+      case 3:
+        return StateFragment.newInstance(StateFragment.Type.NewState, position);
+    }
+    return null;
+  }
+
+  @Override
+  public int getCount() {
+    return 4;
+  }
+
+  @Override
+  public CharSequence getPageTitle(int tabPosition) {
+    switch (tabPosition) {
+      case 0:
+        return "Action";
+      case 1:
+        return "State diff";
+      case 2:
+        return "Old State";
+      case 3:
+        return "New State";
+    }
+    return super.getPageTitle(tabPosition);
+  }
+
+}// end class ViewPagerAdapter
 
 }// end class DebugDetailsDialogFragment

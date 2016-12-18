@@ -63,8 +63,8 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
   public ViewHolder(View itemView) {
     super(itemView);
-    text_description = (TextView) itemView.findViewById(R.id.text_description);
-    text_time = (TextView) itemView.findViewById(R.id.text_time);
+    text_description = (TextView) itemView.findViewById(R.id.row_text_description);
+    text_time = (TextView) itemView.findViewById(R.id.row_text_time);
     // attach the click listener
     itemView.setOnClickListener(this);
   }
