@@ -65,6 +65,7 @@ public View onCreateView(LayoutInflater inflater,
   return view;
 }
 
+/** this code is NOT run in the EDT! ... runs in a background thread */
 public String _render() {
   if (historyEntry == null) return "N/A";
   // do something different with type & position ...
@@ -88,6 +89,7 @@ public String _render() {
 
   return sb.toString();
 }
+
 
 public class AsyncRender extends AsyncTask<Void, Void, String> {
 

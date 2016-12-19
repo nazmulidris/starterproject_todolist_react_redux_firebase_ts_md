@@ -58,7 +58,9 @@ public class diff_match_patch {
  */
 public static String diff(String text1, String text2) {
   diff_match_patch difference = new diff_match_patch();
-  LinkedList<diff_match_patch.Diff> deltas = difference.diff_main(text1, text2);
+  LinkedList<diff_match_patch.Diff> deltas = difference.diff_main(
+    jsonToHtml(text1),
+    jsonToHtml(text2));
 
   StringBuilder sb = new StringBuilder();
   for (diff_match_patch.Diff d : deltas) {
@@ -68,6 +70,17 @@ public static String diff(String text1, String text2) {
       sb.append("<font color=\"#4d990f\"><ins>").append(d.text).append("</ins></font>");
     else
       sb.append(d.text);
+  }
+  return sb.toString();
+}
+
+public static String jsonToHtml(String s) {
+  StringBuilder sb = new StringBuilder();
+  String lines[] = s.split("\\r?\\n");
+  for (String line : lines) {
+    sb.append("<p>")
+      .append(line.replaceAll("\\s", "&nbsp;"))
+      .append("</p>");
   }
   return sb.toString();
 }
