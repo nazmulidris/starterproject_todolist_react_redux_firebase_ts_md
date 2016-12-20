@@ -3,8 +3,8 @@ package com.r3bl.todo_app.container;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.brianegan.bansa.BaseStore;
-import com.r3bl.todo_app.container.firebase.Auth;
-import com.r3bl.todo_app.container.firebase.Database;
+import com.r3bl.todo_app.container.firebase.FirebaseAuthentication;
+import com.r3bl.todo_app.container.firebase.FirebaseDatabase;
 import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.container.redux.Reducer;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
@@ -21,9 +21,9 @@ import java.util.UUID;
 public class App extends android.app.Application {
 
 private static final String TAG = App.class.getSimpleName();
-private BaseStore<State> _store;
-private Auth             _auth;
-private Database         _database;
+private BaseStore<State>       _store;
+private FirebaseAuthentication _auth;
+private FirebaseDatabase       _database;
 private String sessionId = UUID.randomUUID().toString();
 private ReduxDebugLog _log;
 
@@ -55,7 +55,7 @@ public void onCreate() {
 // Shared Preferences
 //
 private void _initFromSharedPrefs() {
-  State oldState = Database.loadStateFromSharedPrefs(this);
+  State oldState = FirebaseDatabase.loadStateFromSharedPrefs(this);
   if (oldState != null) {
     getReduxStore().dispatch(new Actions.RestoreState(oldState));
     log("App._initFromSharedPrefs", "loaded saved state from SharedPreferences");
@@ -66,12 +66,12 @@ private void _initFromSharedPrefs() {
 // Database
 //
 
-public Database getDatabase() {
+public FirebaseDatabase getDatabase() {
   return _database;
 }
 
 private void _initDatabase() {
-  _database = new Database(this);
+  _database = new FirebaseDatabase(this);
 }
 
 //
@@ -119,10 +119,10 @@ private static String _formatLogMessage(String line1_p1, String line2_p2, String
 //
 
 private void _initFirebaseAuth() {
-  _auth = new Auth(this);
+  _auth = new FirebaseAuthentication(this);
 }
 
-public Auth getAuth() {
+public FirebaseAuthentication getAuth() {
   return _auth;
 }
 

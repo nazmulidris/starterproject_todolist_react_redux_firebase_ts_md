@@ -5,18 +5,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.r3bl.todo_app.container.App;
-import com.r3bl.todo_app.ui.MainActivity;
 
 /**
  * Created by nazmul on 11/8/16.
  */
 
-public class Auth implements FirebaseAuth.AuthStateListener {
+public class FirebaseAuthentication implements FirebaseAuth.AuthStateListener {
 
 private final FirebaseAuth _auth;
 private final App          _ctx;
 
-public Auth(App myApplication) {
+public FirebaseAuthentication(App myApplication) {
   _ctx = myApplication;
   _auth = FirebaseAuth.getInstance();
   attachAuthListener();
@@ -64,13 +63,6 @@ private void _forceAnonSignIn() {
                                               task.getException()));
            }
          });
-}
-
-//
-// Google sign in
-//
-public void googleSignIn(MainActivity mainActivity) {
-
 }
 
 }// end class MyApplicationAuth

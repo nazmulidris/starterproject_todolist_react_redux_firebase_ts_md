@@ -18,10 +18,10 @@ import static com.r3bl.todo_app.container.utils.diff_match_patch.diff;
  * Created by nazmul on 11/8/16.
  */
 
-public class Database {
-private final App                _ctx;
-private final FirebaseDatabase   _db;
-private       ValueEventListener valueListener;
+public class FirebaseDatabase {
+private final App                                           _ctx;
+private final com.google.firebase.database.FirebaseDatabase _db;
+private       ValueEventListener                            valueListener;
 
 public enum Locations {
   USER_ACCOUNT_ROOT,
@@ -31,15 +31,15 @@ public enum Locations {
   timestamp,
 }
 
-public Database(App app) {
+public FirebaseDatabase(App app) {
   _ctx = app;
-  _db = FirebaseDatabase.getInstance();
+  _db = com.google.firebase.database.FirebaseDatabase.getInstance();
   app.getReduxStore().subscribe(state -> {
     _saveStateToFirebase(state);
   });
 }
 
-public FirebaseDatabase getDatabase() {
+public com.google.firebase.database.FirebaseDatabase getDatabase() {
   return _db;
 }
 
@@ -172,7 +172,7 @@ private void _saveStateToFirebase(State state) {
 //
 
 public static State loadStateFromSharedPrefs(App context) {
-  SharedPreferences pref = context.getSharedPreferences(Database.class.getSimpleName(),
+  SharedPreferences pref = context.getSharedPreferences(FirebaseDatabase.class.getSimpleName(),
                                                         Context.MODE_PRIVATE);
   String serform = pref.getString(Locations.DATA_KEY.name(), null);
   if (serform == null) return null;
@@ -186,7 +186,7 @@ public static State loadStateFromSharedPrefs(App context) {
 }
 
 public static void saveStateToSharedPrefs(App context, State state) {
-  SharedPreferences.Editor pref = context.getSharedPreferences(Database.class.getSimpleName(),
+  SharedPreferences.Editor pref = context.getSharedPreferences(FirebaseDatabase.class.getSimpleName(),
                                                                Context.MODE_PRIVATE)
                                          .edit();
   pref.putString(Locations.DATA_KEY.name(),
