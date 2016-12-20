@@ -1,10 +1,13 @@
 package com.r3bl.todo_app.container.firebase;
 
 import android.support.annotation.NonNull;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.r3bl.todo_app.container.App;
+import com.r3bl.todo_app.ui.MainActivity;
 
 /**
  * Created by nazmul on 11/8/16.
@@ -63,6 +66,30 @@ private void _forceAnonSignIn() {
                                               task.getException()));
            }
          });
+}
+
+public void firebaseAuthWithGoogle(GoogleSignInAccount acct,
+                                   String googleIdToken,
+                                   AuthCredential credential,
+                                   MainActivity mainActivity) {
+  // TODO: 12/19/16 complete this integration ... figure out what the linking does ... update UI with avatar
+
+  _auth.getCurrentUser().linkWithCredential(credential)
+       .addOnCompleteListener(
+         task -> {
+           App.log("Auth", "firebaseAuthWithGoogle -> linkWithCredential:onComplete:" + task.isSuccessful());
+
+           // TODO: 12/19/16
+           // If sign in fails, display a message to the user. If sign in succeeds
+           // the auth state listener will be notified and logic to handle the
+           // signed in user can be handled in the listener.
+
+           if (!task.isSuccessful()) {
+             App.logErr("Auth", String.format("firebaseAuthWithGoogle: problem with signin, %s",
+                                              task.getException()));
+           }
+         });
+
 }
 
 }// end class MyApplicationAuth

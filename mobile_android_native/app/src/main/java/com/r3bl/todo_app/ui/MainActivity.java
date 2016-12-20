@@ -76,18 +76,20 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (result.isSuccess()) {
       // Google Sign In was successful, authenticate with Firebase
       GoogleSignInAccount account = result.getSignInAccount();
-      firebaseAuthWithGoogle(account);
+      _firebaseAuthWithGoogle(account);
     } else {
       // Google Sign In failed, update UI appropriately
-      // ...
+      // TODO: 12/19/16 do something if google sign in fails
     }
   }
 }
 
-private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+private void _firebaseAuthWithGoogle(GoogleSignInAccount acct) {
   String googleIdToken = acct.getIdToken();
   AuthCredential credential = GoogleAuthProvider.getCredential(googleIdToken, null);
   // TODO: 12/19/16 hook into Auth.java and link the accounts & trigger firebase auth
+  App ctx = (App) getApplicationContext();
+  ctx.getAuth().firebaseAuthWithGoogle(acct, googleIdToken, credential, this);
 }
 
 
@@ -95,7 +97,6 @@ private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
 public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
   // TODO: 12/19/16 copy from sam's code ... https://goo.gl/DvxYjg
 }
-
 
 //
 // UI inflate
@@ -180,6 +181,8 @@ private void _actionLogin() {
   ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
   Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
        .show();
+
+  // TODO: 12/19/16 if user is signed in -> signout, else google signin
   _googleSignIn();
 }
 
