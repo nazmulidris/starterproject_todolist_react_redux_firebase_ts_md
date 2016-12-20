@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.r3bl.todo_app.container.App;
+import com.r3bl.todo_app.ui.MainActivity;
 
 /**
  * Created by nazmul on 11/8/16.
@@ -38,7 +39,6 @@ public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
   if (user != null) {
     // user is signed in (auth or social)
     _processUserLogin(user);
-
   } else {
     // user isn't signed in, so kick off anon auth
     _forceAnonSignIn();
@@ -49,6 +49,10 @@ public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 private void _processUserLogin(UserInfo user) {
   _ctx.getDatabase().saveUserAndLoadData(user);
 }
+
+//
+// Anon sign in
+//
 
 private void _forceAnonSignIn() {
   _auth.signInAnonymously()
@@ -62,5 +66,11 @@ private void _forceAnonSignIn() {
          });
 }
 
+//
+// Google sign in
+//
+public void googleSignIn(MainActivity mainActivity) {
+
+}
 
 }// end class MyApplicationAuth

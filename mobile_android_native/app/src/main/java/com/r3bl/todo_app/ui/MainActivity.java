@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.Actions;
@@ -36,15 +37,7 @@ protected void onCreate(Bundle savedInstanceState) {
   FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
   fab.setOnClickListener(
     view ->
-      Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-              .setAction("Action",
-                         v -> {
-                           App ctx = (App) getApplicationContext();
-                           String msg = ctx.getReduxState().toString();
-                           Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
-                                .show();
-                         })
-              .show());
+      _actionFab(view));
 
   // view pager setup
   ViewPager viewPager = (ViewPager) findViewById(R.id.main_viewPager);
@@ -53,6 +46,21 @@ protected void onCreate(Bundle savedInstanceState) {
   CircleIndicator indicator = (CircleIndicator) findViewById(R.id.main_indicator);
   indicator.setViewPager(viewPager);
 
+}
+
+//
+// FAB pressed
+//
+private void _actionFab(View view) {
+  Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+          .setAction("Action",
+                     v -> {
+                       App ctx = (App) getApplicationContext();
+                       String msg = ctx.getReduxState().toString();
+                       Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
+                            .show();
+                     })
+          .show();
 }
 
 @Override
@@ -79,14 +87,23 @@ public boolean onOptionsItemSelected(MenuItem item) {
   if (id == R.id.action_settings) {
     return true;
   } else if (id == R.id.action_account) {
-    App ctx = (App) getApplicationContext();
-    ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
-    Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
-         .show();
+    _actionLogin();
     return true;
   }
 
   return super.onOptionsItemSelected(item);
+}
+
+//
+// Login Action
+//
+
+private void _actionLogin() {
+  App ctx = (App) getApplicationContext();
+  ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
+  Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
+       .show();
+  ctx.getAuth().googleSignIn(this);
 }
 
 //
