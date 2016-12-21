@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
-import com.r3bl.todo_app.container.utils.diff_match_patch;
+import com.r3bl.todo_app.container.utils.DiffMatchPatch;
 import com.r3bl.todo_app.todoapp.R;
 
 import static com.r3bl.todo_app.ui.reduxdebug.StateFragment.Type.Action;
@@ -77,8 +77,8 @@ public String _render() {
   } else if (actionType.equals(Type.Diff.toString())) {
     // diff
     sb.append(
-      diff_match_patch.diff(historyEntry.oldState.toString(),
-                            historyEntry.newState.toString()));
+      DiffMatchPatch.diff(historyEntry.oldState,
+                          historyEntry.newState));
   } else if (actionType.equals(Type.NewState.toString())) {
     // new state
     sb.append(historyEntry.newState.toString());

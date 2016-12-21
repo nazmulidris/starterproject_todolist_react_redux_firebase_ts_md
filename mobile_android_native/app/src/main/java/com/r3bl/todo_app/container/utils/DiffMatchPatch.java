@@ -19,6 +19,8 @@
 
 package com.r3bl.todo_app.container.utils;
 
+import android.support.annotation.Nullable;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -43,7 +45,7 @@ import java.util.regex.Pattern;
  * Class containing the diff, match and patch methods.
  * Also contains the behaviour settings.
  */
-public class diff_match_patch {
+public class DiffMatchPatch {
 
 /**
  * diff(text1, text2) => diffs:
@@ -56,17 +58,23 @@ public class diff_match_patch {
  * <p>
  * For more info, see https://code.google.com/p/google-diff-match-patch/wiki/API
  */
-public static String diff(String text1, String text2) {
-  diff_match_patch difference = new diff_match_patch();
-  LinkedList<diff_match_patch.Diff> deltas = difference.diff_main(
+public static String diff(@Nullable Object lhs, @Nullable Object rhs) {
+  String text1 = lhs == null ? "" : lhs.toString();
+  String text2 = rhs == null ? "" : rhs.toString();
+
+  DiffMatchPatch diffObject = new DiffMatchPatch();
+  LinkedList<DiffMatchPatch.Diff> deltas = diffObject.diff_main(
     jsonToHtml(text1),
     jsonToHtml(text2));
 
+  // this cleans up the output so its more human readable!
+  diffObject.diff_cleanupSemantic(deltas);
+
   StringBuilder sb = new StringBuilder();
-  for (diff_match_patch.Diff d : deltas) {
-    if (d.operation == diff_match_patch.Operation.DELETE)
+  for (DiffMatchPatch.Diff d : deltas) {
+    if (d.operation == DiffMatchPatch.Operation.DELETE)
       sb.append("<font color=\"#990f16\"><del>").append(d.text).append("</del></font>");
-    else if (d.operation == diff_match_patch.Operation.INSERT)
+    else if (d.operation == DiffMatchPatch.Operation.INSERT)
       sb.append("<font color=\"#4d990f\"><ins>").append(d.text).append("</ins></font>");
     else
       sb.append(d.text);

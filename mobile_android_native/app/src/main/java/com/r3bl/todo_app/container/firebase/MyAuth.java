@@ -13,12 +13,12 @@ import com.r3bl.todo_app.ui.MainActivity;
  * Created by nazmul on 11/8/16.
  */
 
-public class FirebaseAuthentication implements FirebaseAuth.AuthStateListener {
+public class MyAuth implements FirebaseAuth.AuthStateListener {
 
 private final FirebaseAuth _auth;
 private final App          _ctx;
 
-public FirebaseAuthentication(App myApplication) {
+public MyAuth(App myApplication) {
   _ctx = myApplication;
   _auth = FirebaseAuth.getInstance();
   attachAuthListener();

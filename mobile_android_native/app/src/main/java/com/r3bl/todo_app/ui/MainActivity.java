@@ -45,14 +45,13 @@ public static final int RC_SIGN_IN = 999;
 // Google sign in
 //
 
-// TODO: 12/19/16 onActivityResult
 public void _googleSignIn() {
   // Configure Google Sign In
-  GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                              .requestIdToken(getString(R.string.default_web_client_id))
-                              .requestEmail()
-                              .build();
-
+  GoogleSignInOptions gso =
+    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+      .requestIdToken(getString(R.string.default_web_client_id))
+      .requestEmail()
+      .build();
 
   GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
                                        .enableAutoManage(this /* FragmentActivity */,
@@ -64,7 +63,6 @@ public void _googleSignIn() {
   startActivityForResult(signInIntent, RC_SIGN_IN);
 
 }
-
 
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,7 +77,9 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
       _firebaseAuthWithGoogle(account);
     } else {
       // Google Sign In failed, update UI appropriately
-      // TODO: 12/19/16 do something if google sign in fails
+      App.logErr("MainActivity",
+                 "problem signing into Google",
+                 result.toString());
     }
   }
 }
@@ -88,14 +88,17 @@ private void _firebaseAuthWithGoogle(GoogleSignInAccount acct) {
   String googleIdToken = acct.getIdToken();
   AuthCredential credential = GoogleAuthProvider.getCredential(googleIdToken, null);
   // TODO: 12/19/16 hook into Auth.java and link the accounts & trigger firebase auth
-  App ctx = (App) getApplicationContext();
-  ctx.getAuth().firebaseAuthWithGoogle(acct, googleIdToken, credential, this);
+  App.getContext(this)
+     .getAuth()
+     .firebaseAuthWithGoogle(acct, googleIdToken, credential, this);
 }
 
 
 @Override
 public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-  // TODO: 12/19/16 copy from sam's code ... https://goo.gl/DvxYjg
+  App.logErr("MainActivity",
+             "problem connection to Google Play Services",
+             connectionResult.toString());
 }
 
 //

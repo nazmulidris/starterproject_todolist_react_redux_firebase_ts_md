@@ -12,16 +12,16 @@ import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
-import static com.r3bl.todo_app.container.utils.diff_match_patch.diff;
+import static com.r3bl.todo_app.container.utils.DiffMatchPatch.diff;
 
 /**
  * Created by nazmul on 11/8/16.
  */
 
-public class FirebaseDatabase {
-private final App                                           _ctx;
-private final com.google.firebase.database.FirebaseDatabase _db;
-private       ValueEventListener                            valueListener;
+public class MyDB {
+private final App                _ctx;
+private final FirebaseDatabase   _db;
+private       ValueEventListener valueListener;
 
 public enum Locations {
   USER_ACCOUNT_ROOT,
@@ -31,7 +31,7 @@ public enum Locations {
   timestamp,
 }
 
-public FirebaseDatabase(App app) {
+public MyDB(App app) {
   _ctx = app;
   _db = com.google.firebase.database.FirebaseDatabase.getInstance();
   app.getReduxStore().subscribe(state -> {
@@ -71,7 +71,7 @@ private void _dispatchSetUserAction(UserInfo userInfo) {
             "Local user and Firebase user are not the same",
             "1) dispatching SetUser action, ",
             "2) Saving the user object to Firebase",
-            diff(firebaseUser.toString(), localUser.toString()));
+            diff(firebaseUser, localUser));
 
     // dispatch a redux action to set the user object
     _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
@@ -172,7 +172,7 @@ private void _saveStateToFirebase(State state) {
 //
 
 public static State loadStateFromSharedPrefs(App context) {
-  SharedPreferences pref = context.getSharedPreferences(FirebaseDatabase.class.getSimpleName(),
+  SharedPreferences pref = context.getSharedPreferences(MyDB.class.getSimpleName(),
                                                         Context.MODE_PRIVATE);
   String serform = pref.getString(Locations.DATA_KEY.name(), null);
   if (serform == null) return null;
@@ -186,7 +186,7 @@ public static State loadStateFromSharedPrefs(App context) {
 }
 
 public static void saveStateToSharedPrefs(App context, State state) {
-  SharedPreferences.Editor pref = context.getSharedPreferences(FirebaseDatabase.class.getSimpleName(),
+  SharedPreferences.Editor pref = context.getSharedPreferences(MyDB.class.getSimpleName(),
                                                                Context.MODE_PRIVATE)
                                          .edit();
   pref.putString(Locations.DATA_KEY.name(),
