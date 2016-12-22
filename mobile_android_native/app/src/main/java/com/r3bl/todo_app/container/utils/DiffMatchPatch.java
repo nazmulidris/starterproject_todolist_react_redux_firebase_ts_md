@@ -48,6 +48,10 @@ import java.util.regex.Pattern;
 public class DiffMatchPatch {
 
 /**
+ * NOTE - THIS IS A VERY EXPENSIVE COMPUTATION!
+ * DO NOT CALL THIS ON EDT EITHER!!!
+ * DO NOT CALL THIS METHOD IN LOG CALLS!!!
+ * <p>
  * diff(text1, text2) => diffs:
  * An array of differences is computed which describe the transformation of text1 into text2.
  * Each difference is an array (JavaScript, Lua) or tuple (Python) or Diff object (C++, C#, Objective C, Java).

@@ -13,8 +13,9 @@ import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
+import java.util.Date;
+
 import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_DATA_ROOT;
-import static com.r3bl.todo_app.container.utils.DiffMatchPatch.diff;
 
 /**
  * Created by nazmul on 11/8/16.
@@ -73,8 +74,8 @@ private void _dispatchSetUserAction(User firebaseUser) {
     App.log("Database._dispatchSetUserAction",
             "Local user and Firebase user are not the same",
             "1) dispatching SetUser action, ",
-            "2) Saving the user object to Firebase",
-            diff(firebaseUser, localUser));
+            "2) Saving the user object to Firebase");
+    //diff(firebaseUser, localUser));
 
     // dispatch a redux action to set the user object
     _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
@@ -89,7 +90,6 @@ private void _dispatchSetUserAction(User firebaseUser) {
 }
 
 private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
-
   removeValueListener();
 
   refWithValueListener = _db.getReference().child(USER_DATA_ROOT.name())
@@ -109,7 +109,6 @@ private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
   };
 
   refWithValueListener.addValueEventListener(valueListener);
-
 }
 
 public void removeValueListener() {
@@ -121,7 +120,6 @@ public void removeValueListener() {
 }
 
 private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
-
   Data dataObject = dataSnapshot.getValue(Data.class);
 
   if (dataObject != null) {
@@ -156,7 +154,6 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
     App.log("Database._processUpdateFromFirebase]",
             "no data object found in Firebase");
   }
-
 }
 
 public void startSavingStateToFirebase() {
@@ -171,7 +168,6 @@ public void stopSavingStateToFirebase() {
 }
 
 private void _saveStateToFirebase(State state) {
-
   Data data = state.data;
   if (data != null) {
     data.prepForSaveToFirebase(_ctx.getSessionId(), ServerValue.TIMESTAMP);
@@ -183,7 +179,6 @@ private void _saveStateToFirebase(State state) {
     ref.setValue(data);
   }
   saveStateToSharedPrefs(_ctx, state);
-
 }
 
 //
@@ -232,11 +227,59 @@ public void performDataMigration(@NonNull User old_user,
                                  @NonNull User new_user) {
   // delete the old_user
   removeValueListener();
-  _deleteDataAndUser(old_user);
-
+  _copyAndDelete(old_user, new_user);
 }
 
-private void _deleteDataAndUser(User old_user) {
+/**
+ * copy data from old_user -> new_user ONLY if new_user doesn't have any existing data
+ */
+private void _copyAndDelete(User old_user, User new_user) {
+  DatabaseReference old_user_data_ref =
+    getDatabase().getReference()
+                 .child(USER_DATA_ROOT.name())
+                 .child(old_user.uid)
+                 .child(Locations.DATA_KEY.name());
+
+  DatabaseReference new_user_data_ref =
+    getDatabase().getReference()
+                 .child(USER_DATA_ROOT.name())
+                 .child(new_user.uid)
+                 .child(Locations.DATA_KEY.name());
+
+  new_user_data_ref.addListenerForSingleValueEvent(new MyValueEventListener() {
+    @Override
+    public void onDataChange(DataSnapshot newUserDataSnapshot) {
+      if (newUserDataSnapshot.getValue() == null) {
+        // new_user doesnt have any day in the db
+        old_user_data_ref.addListenerForSingleValueEvent(new MyValueEventListener() {
+          @Override
+          public void onDataChange(DataSnapshot oldUserDataSnapshot) {
+            _copy(oldUserDataSnapshot, new_user_data_ref);
+            _delete(old_user);
+          }
+        });
+
+      } else {
+        _delete(old_user);
+      }
+    }
+  });
+}
+
+private void _copy(DataSnapshot dataSnapshot, DatabaseReference new_user_data_ref) {
+  Data oldUserData = dataSnapshot.getValue(Data.class);
+  if (oldUserData != null) {
+    // reset the sessionId so that it triggers a write!
+    oldUserData.sessionId = _ctx.getSessionId() + new Date().toString();
+    // copy the data from old_user -> new_user
+    new_user_data_ref.setValue(oldUserData);
+  }
+}
+
+/**
+ * delete user and data for the old_user
+ */
+private void _delete(User old_user) {
   DatabaseReference old_user_data_root =
     getDatabase().getReference()
                  .child(USER_DATA_ROOT.name());
@@ -249,6 +292,13 @@ private void _deleteDataAndUser(User old_user) {
   old_user_account_root.child(old_user.uid).removeValue();
 
   App.log("Database", "_deleteDataAndUser: deleting USER_DATA_ROOT/old_user & USER_ACCOUNT_ROOT/old_user");
+}
+
+public abstract class MyValueEventListener implements ValueEventListener {
+  @Override
+  public void onCancelled(DatabaseError databaseError) {
+
+  }
 }
 
 }// end class Database

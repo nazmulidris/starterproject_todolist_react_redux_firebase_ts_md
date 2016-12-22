@@ -5,8 +5,6 @@ import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 
-import static com.r3bl.todo_app.container.utils.DiffMatchPatch.diff;
-
 /**
  * Created by nazmul on 11/8/16.
  */
@@ -50,12 +48,14 @@ public State reduce(State state, Action actionParam) {
     ctx.getReduxLog().push(ctx.getTime(), state, actionParam, newState);
 
     App.log("Reducer", "applying action: " + actionParam.getClass().getSimpleName());
+/*
     try {
       App.log("Reducer", "state diff: ", diff(state, newState));
     } catch (Exception e) {
       App.log("Reducer", "reduce: old state: " + state);
       App.log("Reducer", "reduce: new state: " + newState);
     }
+*/
 
     return newState;
 
