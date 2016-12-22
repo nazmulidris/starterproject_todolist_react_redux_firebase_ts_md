@@ -2,7 +2,7 @@ package com.r3bl.todo_app.container.firebase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.google.firebase.auth.UserInfo;
+import android.support.annotation.NonNull;
 import com.google.firebase.database.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +12,7 @@ import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
+import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_DATA_ROOT;
 import static com.r3bl.todo_app.container.utils.DiffMatchPatch.diff;
 
 /**
@@ -22,6 +23,7 @@ public class MyDB {
 private final App                _ctx;
 private final FirebaseDatabase   _db;
 private       ValueEventListener valueListener;
+private       DatabaseReference  refWithValueListener;
 
 public enum Locations {
   USER_ACCOUNT_ROOT,
@@ -43,27 +45,28 @@ public com.google.firebase.database.FirebaseDatabase getDatabase() {
   return _db;
 }
 
-public void saveUserAndLoadData(UserInfo firebaseUser) {
+public void saveUserAndLoadData(User user) {
+  _removeValueListener();
+
   // check to see whether SetUser should be fired or not
-  _dispatchSetUserAction(firebaseUser);
+  _dispatchSetUserAction(user);
 
   // load the data for the user
-  _loadDataForUserAndAttachListenerToFirebase(firebaseUser.getUid());
+  _loadDataForUserAndAttachListenerToFirebase(user.uid);
 }
 
-private void _saveUserObjectToFirebase(UserInfo firebaseUser) {
+private void _saveUserObjectToFirebase(User user) {
   // save the userObject to firebase
   DatabaseReference rootRef = _db.getReference()
                                  .child(Locations.USER_ACCOUNT_ROOT.name())
-                                 .child(firebaseUser.getUid());
-  rootRef.setValue(firebaseUser);
+                                 .child(user.uid);
+  rootRef.setValue(user);
   App.log("Database._saveUserObjectToFirebase",
-          "saving User object to Firebase, uid:" + firebaseUser.getUid());
+          "saving User object to Firebase, uid:" + user.uid);
 }
 
-private void _dispatchSetUserAction(UserInfo userInfo) {
+private void _dispatchSetUserAction(User firebaseUser) {
   // check to see whether SetUser action should be dispatched
-  User firebaseUser = new User(userInfo);
   User localUser = _ctx.getReduxState().user;
 
   if (!firebaseUser.equals(localUser)) {
@@ -77,24 +80,21 @@ private void _dispatchSetUserAction(UserInfo userInfo) {
     _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
 
     // check to see if the firebase userobject should be saved
-    _saveUserObjectToFirebase(userInfo);
+    _saveUserObjectToFirebase(firebaseUser);
 
   } else {
     App.log("Database._dispatchSetUserAction",
             "Local user and Firebase user are the same - will not dispatch SetUser action");
-    //,App.diff(firebaseUser.toString(), localUser.toString()));
   }
 }
 
 private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
 
-  DatabaseReference ref = _db.getReference().child(Locations.USER_DATA_ROOT.name())
-                             .child(uid)
-                             .child(Locations.DATA_KEY.name());
+  _removeValueListener();
 
-  if (valueListener != null) {
-    ref.removeEventListener(valueListener);
-  }
+  refWithValueListener = _db.getReference().child(USER_DATA_ROOT.name())
+                            .child(uid)
+                            .child(Locations.DATA_KEY.name());
 
   valueListener = new ValueEventListener() {
     @Override
@@ -108,8 +108,16 @@ private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
     }
   };
 
-  ref.addValueEventListener(valueListener);
+  refWithValueListener.addValueEventListener(valueListener);
 
+}
+
+private void _removeValueListener() {
+  if (refWithValueListener != null) {
+    if (valueListener != null) {
+      refWithValueListener.removeEventListener(valueListener);
+    }
+  }
 }
 
 private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
@@ -121,8 +129,8 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
     String sessionIdFromFirebase = dataObject.sessionId;
     String localSessionId = _ctx.getSessionId();
 
-//    App.log("Database._processUpdateFromFirebase",
-//            "comparing session ids:", sessionIdFromFirebase, localSessionId);
+    //App.log("Database._processUpdateFromFirebase",
+    //        "comparing session ids:", sessionIdFromFirebase, localSessionId);
 
     if (!sessionIdFromFirebase.equals(localSessionId)) {
 
@@ -158,7 +166,7 @@ private void _saveStateToFirebase(State state) {
     data.prepForSaveToFirebase(_ctx.getSessionId(), ServerValue.TIMESTAMP);
 
     DatabaseReference ref = _db.getReference()
-                               .child(Locations.USER_DATA_ROOT.name())
+                               .child(USER_DATA_ROOT.name())
                                .child(_ctx.getReduxState().user.uid)
                                .child(Locations.DATA_KEY.name());
     ref.setValue(data);
@@ -195,6 +203,41 @@ public static void saveStateToSharedPrefs(App context, State state) {
 
   App.log("Database.saveStateToSharedPrefs",
           "saving state to SharedPreferences");
+}
+
+//
+// Data migration from one user to another
+//
+
+/**
+ * 1) copy data from old -> new user (only if new user is NOT pre existing)
+ * 2) delete old user from {@link Locations#USER_ACCOUNT_ROOT} & Locations#USER_DATA_ROOT
+ * <p>
+ * Note - this means that a user that converts from anon -> a signed in user that already
+ * has data in the system will lose the anon data. Data is only migrated for signedin
+ * users that don't already existing in the database.
+ */
+public void performDataMigration(@NonNull User old_user,
+                                 @NonNull User new_user) {
+  // delete the old_user
+  _removeValueListener();
+  _deleteDataAndUser(old_user);
+
+}
+
+private void _deleteDataAndUser(User old_user) {
+  DatabaseReference old_user_data_root =
+    getDatabase().getReference()
+                 .child(USER_DATA_ROOT.name());
+
+  DatabaseReference old_user_account_root =
+    getDatabase().getReference()
+                 .child(Locations.USER_ACCOUNT_ROOT.name());
+
+  old_user_data_root.child(old_user.uid).removeValue();
+  old_user_account_root.child(old_user.uid).removeValue();
+
+  App.log("Database", "_deleteDataAndUser: deleting USER_DATA_ROOT/old_user & USER_ACCOUNT_ROOT/old_user");
 }
 
 }// end class Database

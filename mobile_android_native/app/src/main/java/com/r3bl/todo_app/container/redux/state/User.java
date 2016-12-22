@@ -1,6 +1,6 @@
 package com.r3bl.todo_app.container.redux.state;
 
-import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ServerValue;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,7 +27,7 @@ public User() {
   // default constructor required for firebase DataSnapshot.getValue(UserObject.class)
 }
 
-public User(UserInfo param) {
+public User(FirebaseUser param) {
   if (param.getUid() != null) {
     uid = param.getUid();
   }
@@ -44,7 +44,7 @@ public User(UserInfo param) {
     email = param.getEmail();
   }
   emailVerified = param.isEmailVerified();
-  isAnonymous = (param.getProviderId() != null);
+  isAnonymous = param.isAnonymous();
 
   timestamp = ServerValue.TIMESTAMP;
 }

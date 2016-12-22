@@ -56,7 +56,7 @@ public View onCreateView(LayoutInflater inflater,
   actionType = getArguments().getString("type", "");
   position = getArguments().getInt("position", -1);
   if (position != -1) {
-    historyEntry = App.getContext(getActivity().getApplicationContext())
+    historyEntry = App.getContext(getActivity())
                       .getReduxLog()._stateHistory.get(position);
   }
 

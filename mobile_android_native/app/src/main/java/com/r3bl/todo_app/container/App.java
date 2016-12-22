@@ -1,5 +1,6 @@
 package com.r3bl.todo_app.container;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import com.brianegan.bansa.BaseStore;
@@ -77,8 +78,8 @@ private void _initDatabase() {
 //
 // Utility
 //
-public static App getContext(Object activity) {
-  return (App) activity;
+public static App getContext(Activity activity) {
+  return (App) activity.getApplicationContext();
 }
 
 public String getTime() {

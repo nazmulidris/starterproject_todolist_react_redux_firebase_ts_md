@@ -61,7 +61,6 @@ public void _googleSignIn() {
 
   Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
   startActivityForResult(signInIntent, RC_SIGN_IN);
-
 }
 
 @Override
@@ -133,10 +132,14 @@ protected void onCreate(Bundle savedInstanceState) {
 // FAB pressed
 //
 private void _actionFab(View view) {
-  Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-          .setAction("Action",
+  App ctx = (App) getApplicationContext();
+  ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
+  Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
+       .show();
+
+  Snackbar.make(view, "Todo list item added", Snackbar.LENGTH_LONG)
+          .setAction("State",
                      v -> {
-                       App ctx = (App) getApplicationContext();
                        String msg = ctx.getReduxState().toString();
                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
                             .show();
@@ -180,11 +183,6 @@ public boolean onOptionsItemSelected(MenuItem item) {
 //
 
 private void _actionLogin() {
-  App ctx = (App) getApplicationContext();
-  ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
-  Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
-       .show();
-
   // TODO: 12/19/16 if user is signed in -> signout, else google signin
   _googleSignIn();
 }
