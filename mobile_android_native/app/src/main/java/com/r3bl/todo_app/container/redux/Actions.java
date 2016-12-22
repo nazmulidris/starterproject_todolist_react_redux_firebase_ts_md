@@ -32,9 +32,10 @@ public static class AddTodoItem implements MyAction<TodoItem> {
 
   @Override
   public String toString() {
-    return "AddTodoItem{" +
-           "todoItem=" + todoItem +
-           '}';
+    final StringBuffer sb = new StringBuffer("AddTodoItem{");
+    sb.append("todoItem=").append(todoItem);
+    sb.append('}');
+    return sb.toString();
   }
 }
 
@@ -53,9 +54,10 @@ public static class SetUser implements MyAction<User> {
 
   @Override
   public String toString() {
-    return "SetUser{" +
-           "userObject=" + userObject +
-           '}';
+    final StringBuffer sb = new StringBuffer("SetUser{");
+    sb.append("userObject=").append(userObject);
+    sb.append('}');
+    return sb.toString();
   }
 }
 
@@ -74,9 +76,28 @@ public static class SetData implements MyAction<Data> {
 
   @Override
   public String toString() {
-    return "SetData{" +
-           "dataObject=" + dataObject +
-           '}';
+    final StringBuffer sb = new StringBuffer("SetData{");
+    sb.append("dataObject=").append(dataObject);
+    sb.append('}');
+    return sb.toString();
+  }
+}
+
+// ResetState action class
+public static class ResetState implements MyAction<Data> {
+  public ResetState() {
+  }
+
+  @Override
+  public Data getParam() {
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("ResetState{");
+    sb.append('}');
+    return sb.toString();
   }
 }
 
@@ -95,9 +116,10 @@ public static class RestoreState implements MyAction<State> {
 
   @Override
   public String toString() {
-    return "RestoreState{" +
-           "stateObject=" + stateObject +
-           '}';
+    final StringBuffer sb = new StringBuffer("RestoreState{");
+    sb.append("stateObject=").append(stateObject);
+    sb.append('}');
+    return sb.toString();
   }
 }
 

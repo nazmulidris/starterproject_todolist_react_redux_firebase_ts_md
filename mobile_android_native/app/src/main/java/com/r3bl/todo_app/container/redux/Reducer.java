@@ -29,15 +29,22 @@ public State reduce(State state, Action actionParam) {
       if (newState.data == null) newState.data = new Data();
       Actions.AddTodoItem action = (Actions.AddTodoItem) actionParam;
       newState.data.todoArray.add(action.getParam());
-    } else if (actionParam instanceof Actions.SetUser) {
+    }
+    else if (actionParam instanceof Actions.SetUser) {
       Actions.SetUser action = (Actions.SetUser) actionParam;
       newState.user = action.getParam();
-    } else if (actionParam instanceof Actions.SetData) {
+    }
+    else if (actionParam instanceof Actions.SetData) {
       Actions.SetData action = (Actions.SetData) actionParam;
       newState.data = action.getParam();
-    } else if (actionParam instanceof Actions.RestoreState) {
+    }
+    else if (actionParam instanceof Actions.RestoreState) {
       Actions.RestoreState action = (Actions.RestoreState) actionParam;
       newState = action.getParam();
+    }
+    else if (actionParam instanceof Actions.ResetState){
+      Actions.ResetState action = (Actions.ResetState) actionParam;
+      newState = new State();
     }
 
     ctx.getReduxLog().push(ctx.getTime(), state, actionParam, newState);

@@ -3,6 +3,7 @@ package com.r3bl.todo_app.container.firebase;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import com.brianegan.bansa.Subscription;
 import com.google.firebase.database.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,6 +23,7 @@ import static com.r3bl.todo_app.container.utils.DiffMatchPatch.diff;
 public class MyDB {
 private final App                _ctx;
 private final FirebaseDatabase   _db;
+private       Subscription       _subscription;
 private       ValueEventListener valueListener;
 private       DatabaseReference  refWithValueListener;
 
@@ -36,9 +38,7 @@ public enum Locations {
 public MyDB(App app) {
   _ctx = app;
   _db = com.google.firebase.database.FirebaseDatabase.getInstance();
-  app.getReduxStore().subscribe(state -> {
-    _saveStateToFirebase(state);
-  });
+  startSavingStateToFirebase();
 }
 
 public com.google.firebase.database.FirebaseDatabase getDatabase() {
@@ -46,7 +46,7 @@ public com.google.firebase.database.FirebaseDatabase getDatabase() {
 }
 
 public void saveUserAndLoadData(User user) {
-  _removeValueListener();
+  removeValueListener();
 
   // check to see whether SetUser should be fired or not
   _dispatchSetUserAction(user);
@@ -90,7 +90,7 @@ private void _dispatchSetUserAction(User firebaseUser) {
 
 private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
 
-  _removeValueListener();
+  removeValueListener();
 
   refWithValueListener = _db.getReference().child(USER_DATA_ROOT.name())
                             .child(uid)
@@ -112,7 +112,7 @@ private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
 
 }
 
-private void _removeValueListener() {
+public void removeValueListener() {
   if (refWithValueListener != null) {
     if (valueListener != null) {
       refWithValueListener.removeEventListener(valueListener);
@@ -157,6 +157,17 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
             "no data object found in Firebase");
   }
 
+}
+
+public void startSavingStateToFirebase() {
+  stopSavingStateToFirebase();
+  _subscription = _ctx.getReduxStore().subscribe(state -> {
+    _saveStateToFirebase(state);
+  });
+}
+
+public void stopSavingStateToFirebase() {
+  if (_subscription != null) _subscription.unsubscribe();
 }
 
 private void _saveStateToFirebase(State state) {
@@ -220,7 +231,7 @@ public static void saveStateToSharedPrefs(App context, State state) {
 public void performDataMigration(@NonNull User old_user,
                                  @NonNull User new_user) {
   // delete the old_user
-  _removeValueListener();
+  removeValueListener();
   _deleteDataAndUser(old_user);
 
 }
