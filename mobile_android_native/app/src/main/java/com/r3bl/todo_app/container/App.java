@@ -41,15 +41,15 @@ public void onCreate() {
 
   _initFromSharedPrefs();
 
-  log("App.onCreate", "created a new redux store object");
-  String msg = getReduxStore().getState().toString();
-  log("App.onCreate", String.format("{%s}", msg));
+//  log("App.onCreate", "created a new redux store object");
+//  String msg = getReduxStore().getState().toString();
+//  log("App.onCreate", String.format("{%s}", msg));
 
   _initDatabase();
 
   _initFirebaseAuth();
 
-  log("App.onCreate", String.format("[END]", msg));
+  log("App.onCreate", "[END]");
 }
 
 //
