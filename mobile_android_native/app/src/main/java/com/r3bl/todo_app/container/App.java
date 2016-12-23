@@ -10,6 +10,7 @@ import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.container.redux.Reducer;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
 import com.r3bl.todo_app.container.redux.state.State;
+import com.r3bl.todo_app.container.redux.state.User;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -27,6 +28,16 @@ private MyAuth           _auth;
 private MyDB             _database;
 private String sessionId = UUID.randomUUID().toString();
 private ReduxDebugLog _log;
+
+public void resetSessionId() {
+  sessionId = UUID.randomUUID().toString();
+}
+
+public enum LoggedInState {
+  NotLoggedIn,
+  AnonLoggedIn,
+  GoogleLoggedIn,
+}
 
 //
 // Constructor
@@ -125,6 +136,16 @@ private void _initFirebaseAuth() {
 
 public MyAuth getAuth() {
   return _auth;
+}
+
+public LoggedInState getUserLoginState() {
+  User user = getReduxState().user;
+  if (user != null) {
+    if (user.isAnonymous) return LoggedInState.AnonLoggedIn;
+    else return LoggedInState.GoogleLoggedIn;
+  } else {
+    return LoggedInState.NotLoggedIn;
+  }
 }
 
 //

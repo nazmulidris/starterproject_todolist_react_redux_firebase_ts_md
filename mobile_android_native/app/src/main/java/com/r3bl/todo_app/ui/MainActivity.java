@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
  * constant used for Google sign in onActivityResult
  */
 public static final int RC_SIGN_IN = 999;
+private GoogleApiClient     mGoogleApiClient;
+private GoogleSignInOptions gso;
 
 //
 // Google sign in
@@ -47,20 +49,31 @@ public static final int RC_SIGN_IN = 999;
 
 public void _googleSignIn() {
   // Configure Google Sign In
-  GoogleSignInOptions gso =
-    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-      .requestIdToken(getString(R.string.default_web_client_id))
-      .requestEmail()
-      .build();
+  if (gso == null) {
+    gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build();
+  }
 
-  GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                                       .enableAutoManage(this /* FragmentActivity */,
-                                                         this /* OnConnectionFailedListener */)
-                                       .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                                       .build();
+  if (mGoogleApiClient == null) {
+    mGoogleApiClient = new GoogleApiClient.Builder(this)
+                         .enableAutoManage(this /* FragmentActivity */,
+                                           this /* OnConnectionFailedListener */)
+                         .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                         .build();
+  }
 
   Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
   startActivityForResult(signInIntent, RC_SIGN_IN);
+}
+
+private void _signOut() {
+  // reset state
+  App _ctx = App.getContext(this);
+  _ctx.getReduxStore().dispatch(new Actions.ResetState());
+  _ctx.resetSessionId();
+  _ctx.getAuth().signOut();
 }
 
 @Override
@@ -86,7 +99,6 @@ public void onActivityResult(int requestCode, int resultCode, Intent data) {
 private void _firebaseAuthWithGoogle(GoogleSignInAccount acct) {
   String googleIdToken = acct.getIdToken();
   AuthCredential credential = GoogleAuthProvider.getCredential(googleIdToken, null);
-  // TODO: 12/19/16 hook into Auth.java and link the accounts & trigger firebase auth
   App.getContext(this)
      .getAuth()
      .firebaseAuthWithGoogle(acct, googleIdToken, credential, this);
@@ -133,18 +145,23 @@ protected void onCreate(Bundle savedInstanceState) {
 //
 private void _actionFab(View view) {
   App ctx = (App) getApplicationContext();
-  ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
-  Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
-       .show();
+  if (ctx.getUserLoginState() == App.LoggedInState.NotLoggedIn) {
+    Toast.makeText(MainActivity.this, "You must sign in to do this", Toast.LENGTH_SHORT)
+         .show();
+  } else {
+    ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
+    Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
+         .show();
 
-  Snackbar.make(view, "Todo list item added", Snackbar.LENGTH_LONG)
-          .setAction("State",
-                     v -> {
-                       String msg = ctx.getReduxState().toString();
-                       Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
-                            .show();
-                     })
-          .show();
+    Snackbar.make(view, "Todo list item added", Snackbar.LENGTH_LONG)
+            .setAction("State",
+                       v -> {
+                         String msg = ctx.getReduxState().toString();
+                         Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
+                              .show();
+                       })
+            .show();
+  }
 }
 
 @Override
@@ -183,8 +200,18 @@ public boolean onOptionsItemSelected(MenuItem item) {
 //
 
 private void _actionLogin() {
-  // TODO: 12/19/16 if user is signed in -> signout, else google signin
   _googleSignIn();
+  switch (App.getContext(this).getUserLoginState()) {
+    case NotLoggedIn:
+      // do nothing
+      break;
+    case AnonLoggedIn:
+      _googleSignIn();
+      break;
+    case GoogleLoggedIn:
+      _signOut();
+      break;
+  }
 }
 
 //

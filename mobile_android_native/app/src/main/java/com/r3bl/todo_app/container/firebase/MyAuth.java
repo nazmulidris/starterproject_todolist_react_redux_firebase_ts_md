@@ -9,7 +9,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.r3bl.todo_app.container.App;
-import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.container.redux.state.User;
 import com.r3bl.todo_app.ui.MainActivity;
 
@@ -74,9 +73,6 @@ private void _processUserLogin(@NonNull FirebaseUser firebaseUserObject) {
     _ctx.getDatabase().performDataMigration(old_user, new_user);
   }
 
-  // reset state
-  _ctx.getReduxStore().dispatch(new Actions.ResetState());
-
   // start saving state to firebase
   _ctx.getDatabase().startSavingStateToFirebase(); // start saving to db again
 
@@ -108,7 +104,6 @@ public void firebaseAuthWithGoogle(GoogleSignInAccount acct,
                                    String googleIdToken,
                                    AuthCredential credential,
                                    MainActivity mainActivity) {
-  // TODO: 12/19/16 complete this integration ... figure out what the linking does ... update UI with avatar
   _auth.signInWithCredential(credential)
        .addOnCompleteListener(mainActivity, new OnCompleteListener<AuthResult>() {
          @Override
@@ -120,6 +115,10 @@ public void firebaseAuthWithGoogle(GoogleSignInAccount acct,
            }
          }
        });
+}
+
+public void signOut() {
+  _auth.signOut();
 }
 
 }// end class MyApplicationAuth
