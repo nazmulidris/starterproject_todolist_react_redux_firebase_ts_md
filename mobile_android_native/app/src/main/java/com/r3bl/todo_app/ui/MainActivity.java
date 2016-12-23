@@ -21,6 +21,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.r3bl.todo_app.container.App;
@@ -68,12 +70,25 @@ public void _googleSignIn() {
   startActivityForResult(signInIntent, RC_SIGN_IN);
 }
 
+/**
+ * more info - http://stackoverflow.com/questions/38707133/google-firebase-sign-out-and-forget-user-in-android-app
+ */
 private void _signOut() {
   // reset state
   App _ctx = App.getContext(this);
   _ctx.getReduxStore().dispatch(new Actions.ResetState());
   _ctx.resetSessionId();
   _ctx.getAuth().signOut();
+
+  // Google sign out
+  if (mGoogleApiClient.isConnected()){
+    Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+      new ResultCallback<Status>() {
+        @Override
+        public void onResult(@NonNull Status status) {
+        }
+      });
+  }
 }
 
 @Override
