@@ -3,7 +3,6 @@ package com.r3bl.todo_app.container.redux;
 import com.brianegan.bansa.Action;
 import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
-import com.r3bl.todo_app.container.redux.state.TodoItem;
 import com.r3bl.todo_app.container.redux.state.User;
 
 /**
@@ -18,15 +17,15 @@ public interface MyAction<T> extends Action {
 }
 
 // AddTodoItem action class
-public static class AddTodoItem implements MyAction<TodoItem> {
-  private final TodoItem todoItem;
+public static class AddTodoItem implements MyAction<Data.TodoItem> {
+  private final Data.TodoItem todoItem;
 
   public AddTodoItem(String item, boolean done) {
-    this.todoItem = new TodoItem(item, done);
+    this.todoItem = new Data.TodoItem(item, done);
   }
 
   @Override
-  public TodoItem getParam() {
+  public Data.TodoItem getParam() {
     return this.todoItem;
   }
 

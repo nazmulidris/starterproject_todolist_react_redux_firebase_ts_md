@@ -2,6 +2,8 @@ package com.r3bl.todo_app.container.firebase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import com.brianegan.bansa.Subscription;
 import com.google.firebase.database.*;
@@ -13,7 +15,8 @@ import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
-import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_DATA_ROOT;
 
@@ -24,6 +27,7 @@ import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_DATA_ROOT
 public class MyDB {
 private final App                _ctx;
 private final FirebaseDatabase   _db;
+private final ExecutorService    _exec;
 private       Subscription       _subscription;
 private       ValueEventListener valueListener;
 private       DatabaseReference  refWithValueListener;
@@ -40,6 +44,7 @@ public MyDB(App app) {
   _ctx = app;
   _db = com.google.firebase.database.FirebaseDatabase.getInstance();
   startSavingStateToFirebase();
+  _exec = Executors.newSingleThreadExecutor();
 }
 
 public com.google.firebase.database.FirebaseDatabase getDatabase() {
@@ -119,41 +124,82 @@ public void removeValueListener() {
   }
 }
 
+/**
+ * run this code in a background thread, since this is an expensive method call!
+ * <p>
+ * more info - https://guides.codepath.com/android/Managing-Threads-and-Custom-Services#using-an-asynctask
+ */
 private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
-  Data dataObject = dataSnapshot.getValue(Data.class);
+  _exec.submit(() -> {
+    Data data = dataSnapshot.getValue(Data.class);
 
-  if (dataObject != null) {
+    if (data == null) {
+      App.log("Database._processUpdateFromFirebase]",
+              "no data object found in Firebase");
+      return;
+    }
 
-    String sessionIdFromFirebase = dataObject.sessionId;
+    String sessionIdFromFirebase = data.sessionId;
     String localSessionId = _ctx.getSessionId();
 
-    //App.log("Database._processUpdateFromFirebase",
-    //        "comparing session ids:", sessionIdFromFirebase, localSessionId);
-
-    if (!sessionIdFromFirebase.equals(localSessionId)) {
-
-      // dispatch a redux action to set the data object
-      _ctx.getReduxStore().dispatch(new Actions.SetData(dataObject));
-      App.log("Database._processUpdateFromFirebase",
-              "local and firebase sessionIds do NOT match",
-              "dispatching SetData action");
-      //, dataObject.toString());
-
+    // make sure that the data classes (eg: Data, TodoItem) has an impl of equals()
+    if (!data.equals(_ctx.getReduxState().data) ||
+        !localSessionId.equals(sessionIdFromFirebase)) {
+      // DATA IS DIFFERENT!
+      // Create a handler attached to the UI Looper
+      Handler handler = new Handler(Looper.getMainLooper());
+      // Post code to run on the main UI Thread (usually invoked from worker thread)
+      handler.post(() -> {
+        _ctx.getReduxStore().dispatch(new Actions.SetData(data));
+        App.log("Database._processUpdateFromFirebase",
+                "local and firebase sessionIds do NOT match",
+                "dispatching SetData action");
+      });
     } else {
-
-      // don't dispatch
+      // DATA IS THE SAME!
       App.log("Database._processUpdateFromFirebase",
               "local and firebase sessionIds are the SAME",
               "will NOT dispatch SetData action, since I already applied it locally");
-      //,dataObject.toString());
+    }
+  });
 
+/*  // OLD CODE THAT USED SESSIONID INEQUALITY TO DETECT CHANGES IN THE DATA MODEL ONLY
+
+    if (dataObject != null) {
+
+      String sessionIdFromFirebase = dataObject.sessionId;
+      String localSessionId = _ctx.getSessionId();
+
+      //App.log("Database._processUpdateFromFirebase",
+      //        "comparing session ids:", sessionIdFromFirebase, localSessionId);
+
+      if (!sessionIdFromFirebase.equals(localSessionId)) {
+
+        // dispatch a redux action to set the data object
+        _ctx.getReduxStore().dispatch(new Actions.SetData(dataObject));
+        App.log("Database._processUpdateFromFirebase",
+                "local and firebase sessionIds do NOT match",
+                "dispatching SetData action");
+        //, dataObject.toString());
+
+      } else {
+
+        // don't dispatch
+        App.log("Database._processUpdateFromFirebase",
+                "local and firebase sessionIds are the SAME",
+                "will NOT dispatch SetData action, since I already applied it locally");
+        //,dataObject.toString());
+
+      }
+
+    } else {
+      // nothing to dispatch
+      App.log("Database._processUpdateFromFirebase]",
+              "no data object found in Firebase");
     }
 
-  } else {
-    // nothing to dispatch
-    App.log("Database._processUpdateFromFirebase]",
-            "no data object found in Firebase");
-  }
+*/
+
 }
 
 public void startSavingStateToFirebase() {
@@ -216,7 +262,7 @@ public static void saveStateToSharedPrefs(App context, State state) {
 //
 
 /**
- * 1) copy data from old -> new user (only if new user is NOT pre existing)
+ * Y * 1) copy data from old -> new user (only if new user is NOT pre existing)
  * 2) delete old user from {@link Locations#USER_ACCOUNT_ROOT} & Locations#USER_DATA_ROOT
  * <p>
  * Note - this means that a user that converts from anon -> a signed in user that already
@@ -269,8 +315,12 @@ private void _copyAndDelete(User old_user, User new_user) {
 private void _copy(DataSnapshot dataSnapshot, DatabaseReference new_user_data_ref) {
   Data oldUserData = dataSnapshot.getValue(Data.class);
   if (oldUserData != null) {
-    // reset the sessionId so that it triggers a write!
+/*  // OLD CODE THAT USED SESSIONID INEQUALITY TO DETECT CHANGES IN THE DATA MODEL ONLY
+
+    reset the sessionId so that it triggers a write!
     oldUserData.sessionId = _ctx.getSessionId() + new Date().toString();
+
+*/
     // copy the data from old_user -> new_user
     new_user_data_ref.setValue(oldUserData);
   }
