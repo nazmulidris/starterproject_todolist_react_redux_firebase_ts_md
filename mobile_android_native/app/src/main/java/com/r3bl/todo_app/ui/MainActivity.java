@@ -34,7 +34,8 @@ import com.r3bl.todo_app.ui.todo.TodoFragment;
 import me.relex.circleindicator.CircleIndicator;
 
 /**
- * more info on auth - https://github.com/firebase/quickstart-android/blob/master/auth/app/src/main/java/com/google/firebase/quickstart/auth/GoogleSignInActivity.java#L135-L153
+ * more info on google signin & firebase auth -
+ * https://github.com/firebase/quickstart-android/blob/master/auth/app/src/main/java/com/google/firebase/quickstart/auth/GoogleSignInActivity.java#L135-L153
  */
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -49,22 +50,23 @@ private GoogleSignInOptions gso;
 // Google sign in
 //
 
-public void _googleSignIn() {
-  // Configure Google Sign In
-  if (gso == null) {
-    gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build();
-  }
+/**
+ * one time google signin setup
+ */
+private void _setupGoogleSignin() {
+  gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+          .requestIdToken(getString(R.string.default_web_client_id))
+          .requestEmail()
+          .build();
 
-  if (mGoogleApiClient == null) {
-    mGoogleApiClient = new GoogleApiClient.Builder(this)
-                         .enableAutoManage(this /* FragmentActivity */,
-                                           this /* OnConnectionFailedListener */)
-                         .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                         .build();
-  }
+  mGoogleApiClient = new GoogleApiClient.Builder(this)
+                       .enableAutoManage(this /* FragmentActivity */,
+                                         this /* OnConnectionFailedListener */)
+                       .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                       .build();
+}
+
+public void _googleSignIn() {
 
   Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
   startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -73,7 +75,7 @@ public void _googleSignIn() {
 /**
  * more info - http://stackoverflow.com/questions/38707133/google-firebase-sign-out-and-forget-user-in-android-app
  */
-private void _signOut() {
+private void _googleSignOut() {
   // reset state
   App _ctx = App.getContext(this);
   _ctx.getReduxStore().dispatch(new Actions.ResetState());
@@ -153,6 +155,8 @@ protected void onCreate(Bundle savedInstanceState) {
   CircleIndicator indicator = (CircleIndicator) findViewById(R.id.main_indicator);
   indicator.setViewPager(viewPager);
 
+  // google signin setup
+  _setupGoogleSignin();
 }
 
 //
@@ -215,7 +219,6 @@ public boolean onOptionsItemSelected(MenuItem item) {
 //
 
 private void _actionLogin() {
-  _googleSignIn();
   switch (App.getContext(this).getUserLoginState()) {
     case NotLoggedIn:
       // do nothing
@@ -224,7 +227,7 @@ private void _actionLogin() {
       _googleSignIn();
       break;
     case GoogleLoggedIn:
-      _signOut();
+      _googleSignOut();
       break;
   }
 }
