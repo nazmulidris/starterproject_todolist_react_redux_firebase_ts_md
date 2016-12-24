@@ -143,8 +143,8 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
       String localSessionId = _ctx.getSessionId();
 
       // make sure that the data classes (eg: Data, TodoItem) has an impl of equals()
-      if (!data.equals(_ctx.getReduxState().data) ||
-          !localSessionId.equals(sessionIdFromFirebase)) {
+      if (!localSessionId.equals(sessionIdFromFirebase) ||
+          !data.equals(_ctx.getReduxState().data)) {
         // DATA IS DIFFERENT!
         // Create a handler attached to the UI Looper
         Handler handler = new Handler(Looper.getMainLooper());
@@ -162,7 +162,7 @@ private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
                 "will NOT dispatch SetData action, since I already applied it locally");
       }
     } catch (Exception e) {
-      App.logErr("Database._processUpdateFromFirebase issue",e.toString());
+      App.logErr("Database._processUpdateFromFirebase issue", e.toString());
     }
   });
 
