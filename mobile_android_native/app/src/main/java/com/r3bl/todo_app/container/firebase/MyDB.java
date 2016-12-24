@@ -52,8 +52,6 @@ public com.google.firebase.database.FirebaseDatabase getDatabase() {
 }
 
 public void saveUserAndLoadData(User user) {
-  removeValueListener();
-
   // check to see whether SetUser should be fired or not
   _dispatchSetUserAction(user);
 
@@ -131,35 +129,40 @@ public void removeValueListener() {
  */
 private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
   _exec.submit(() -> {
-    Data data = dataSnapshot.getValue(Data.class);
+    try {
+      App.log("Database", "_processUpdateFromFirebase");
+      Data data = dataSnapshot.getValue(Data.class);
 
-    if (data == null) {
-      App.log("Database._processUpdateFromFirebase]",
-              "no data object found in Firebase");
-      return;
-    }
+      if (data == null) {
+        App.log("Database._processUpdateFromFirebase]",
+                "no data object found in Firebase");
+        return;
+      }
 
-    String sessionIdFromFirebase = data.sessionId;
-    String localSessionId = _ctx.getSessionId();
+      String sessionIdFromFirebase = data.sessionId;
+      String localSessionId = _ctx.getSessionId();
 
-    // make sure that the data classes (eg: Data, TodoItem) has an impl of equals()
-    if (!data.equals(_ctx.getReduxState().data) ||
-        !localSessionId.equals(sessionIdFromFirebase)) {
-      // DATA IS DIFFERENT!
-      // Create a handler attached to the UI Looper
-      Handler handler = new Handler(Looper.getMainLooper());
-      // Post code to run on the main UI Thread (usually invoked from worker thread)
-      handler.post(() -> {
-        _ctx.getReduxStore().dispatch(new Actions.SetData(data));
+      // make sure that the data classes (eg: Data, TodoItem) has an impl of equals()
+      if (!data.equals(_ctx.getReduxState().data) ||
+          !localSessionId.equals(sessionIdFromFirebase)) {
+        // DATA IS DIFFERENT!
+        // Create a handler attached to the UI Looper
+        Handler handler = new Handler(Looper.getMainLooper());
+        // Post code to run on the main UI Thread (usually invoked from worker thread)
+        handler.post(() -> {
+          _ctx.getReduxStore().dispatch(new Actions.SetData(data));
+          App.log("Database._processUpdateFromFirebase",
+                  "local and firebase sessionIds do NOT match",
+                  "dispatching SetData action");
+        });
+      } else {
+        // DATA IS THE SAME!
         App.log("Database._processUpdateFromFirebase",
-                "local and firebase sessionIds do NOT match",
-                "dispatching SetData action");
-      });
-    } else {
-      // DATA IS THE SAME!
-      App.log("Database._processUpdateFromFirebase",
-              "local and firebase sessionIds are the SAME",
-              "will NOT dispatch SetData action, since I already applied it locally");
+                "local and firebase sessionIds are the SAME",
+                "will NOT dispatch SetData action, since I already applied it locally");
+      }
+    } catch (Exception e) {
+      App.logErr("Database._processUpdateFromFirebase issue",e.toString());
     }
   });
 
@@ -272,7 +275,6 @@ public static void saveStateToSharedPrefs(App context, State state) {
 public void performDataMigration(@NonNull User old_user,
                                  @NonNull User new_user) {
   // delete the old_user
-  removeValueListener();
   _copyAndDelete(old_user, new_user);
 }
 

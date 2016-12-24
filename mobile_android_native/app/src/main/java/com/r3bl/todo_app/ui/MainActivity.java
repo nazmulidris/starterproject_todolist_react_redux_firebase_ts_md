@@ -81,7 +81,7 @@ private void _signOut() {
   _ctx.getAuth().signOut();
 
   // Google sign out
-  if (mGoogleApiClient.isConnected()){
+  if (mGoogleApiClient.isConnected()) {
     Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
       new ResultCallback<Status>() {
         @Override

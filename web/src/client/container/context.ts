@@ -13,7 +13,8 @@ import * as persistence from './firebase';
 import * as presence from './presence';
 
 const lodash = require('lodash');
-const events = require("events");
+const events = require('events');
+const uuid = require('node-uuid');
 
 /**
  * this holds the app's state which is comprised of:
@@ -45,7 +46,7 @@ class ApplicationContext {
     this.initSocket();
     
     // unique session id
-    this.sessionId = lodash.random(0, new Date().getTime(), false);
+    this.sessionId = uuid.v4();
     
     // create event emitter
     this.initEventEmitter();
@@ -277,7 +278,7 @@ class ApplicationContext {
         null
       );
     }
-  
+    
     // explicitly INIT Redux!
     this.reduxStore.dispatch(actions.action_init());
     
