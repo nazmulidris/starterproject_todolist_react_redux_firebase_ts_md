@@ -2,33 +2,36 @@ package com.r3bl.todo_app.ui.todo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.Toast;
 import com.brianegan.bansa.Subscription;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.todoapp.R;
 
-
+/** the todolist ui that is bound to the state */
 public class TodoFragment extends Fragment {
-protected TextView     text_title;
-protected TextView     text_description;
+protected EditText     textInput;
+protected RecyclerView recyclerView;
 private   Subscription subscriber;
 
 public TodoFragment() {
 }
 
 @Override
-public View onCreateView(LayoutInflater inflater, ViewGroup container,
+public View onCreateView(LayoutInflater inflater,
+                         ViewGroup container,
                          Bundle savedInstanceState) {
 
   App ctx = (App) getActivity().getApplicationContext();
 
   View view = inflater.inflate(R.layout.todo_fragment, container, false);
 
-  text_title = (TextView) view.findViewById(R.id.todo_text_title);
-  text_description = (TextView) view.findViewById(R.id.todo_text_description);
+  textInput = (EditText) view.findViewById(R.id.todo_text_input);
+  recyclerView = (RecyclerView) view.findViewById(R.id.todo_recycler_view);
 
   _updateUI(ctx);
 
@@ -55,9 +58,7 @@ private void _bindToReduxState(App ctx) {
 }
 
 private void _updateUI(App ctx) {
-  text_title.setText(String.format("redux state changed at: %s",
-                                   ctx.getTime()));
-  text_description.setText(ctx.getReduxState().toString());
+  Toast.makeText(ctx, "update todo ui now", Toast.LENGTH_SHORT).show();
 }
 
 }// end class TodoFragment

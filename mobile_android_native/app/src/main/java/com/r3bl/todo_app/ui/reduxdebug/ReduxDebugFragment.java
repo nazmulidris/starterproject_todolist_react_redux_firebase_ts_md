@@ -60,7 +60,7 @@ public void onDestroyView() {
 }
 
 private void _setupRecyclerView(View view, App ctx) {
-  RecyclerView rv = (RecyclerView) view.findViewById(R.id.rv_recycler_view);
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.todo_recycler_view);
   rv_adapter = new ReduxDebugLogAdapter(ctx);
   rv.setAdapter(rv_adapter);
   rv.setLayoutManager(new LinearLayoutManager(ctx));
