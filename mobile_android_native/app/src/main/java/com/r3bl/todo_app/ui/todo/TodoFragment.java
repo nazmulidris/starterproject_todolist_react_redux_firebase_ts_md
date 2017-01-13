@@ -12,6 +12,7 @@ import com.brianegan.bansa.Subscription;
 import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.todoapp.R;
+import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -67,13 +68,19 @@ private void _setupRecyclerView(View view, App ctx) {
 @Subscribe(threadMode = ThreadMode.MAIN)
 public void onMessageEvent(LE_AddTodoListItem event) {
   String item = textInput.getText().toString();
-  App.getContext(getActivity())
-     .getReduxStore()
-     .dispatch(new Actions.AddTodoItem(item, false));
-  textInput.setText("");
+  if (!StringUtils.isEmpty(item)){
+    App.getContext(getActivity())
+       .getReduxStore()
+       .dispatch(new Actions.AddTodoItem(item, false));
+    textInput.setText("");
+    EventBus.getDefault().post(new LE_TodoListItemAdded());
+  }
 }
 
 public static class LE_AddTodoListItem {
+}
+
+public static class LE_TodoListItemAdded {
 }
 
 //

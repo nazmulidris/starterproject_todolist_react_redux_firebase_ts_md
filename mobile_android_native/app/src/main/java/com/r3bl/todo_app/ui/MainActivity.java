@@ -33,6 +33,8 @@ import com.r3bl.todo_app.ui.reduxdebug.DebugFragment;
 import com.r3bl.todo_app.ui.todo.TodoFragment;
 import me.relex.circleindicator.CircleIndicator;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * more info on google signin & firebase auth -
@@ -158,7 +160,27 @@ protected void onCreate(Bundle savedInstanceState) {
 
   // google signin setup
   _setupGoogleSignin();
+
+  // setup eventbus listeners
+  EventBus.getDefault().register(this);
 }
+
+//
+// EventBus listeners
+//
+@Subscribe(threadMode = ThreadMode.MAIN)
+public void onMessageEvent(TodoFragment.LE_TodoListItemAdded event) {
+  FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+  Snackbar.make(fab, "Todo list item added", Snackbar.LENGTH_LONG)
+          .setAction("State",
+                     v -> {
+                       String msg = App.getContext(this).getReduxState().toString();
+                       Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
+                            .show();
+                     })
+          .show();
+}
+
 
 //
 // FAB pressed
@@ -170,14 +192,6 @@ private void _actionFab(View view) {
          .show();
   } else {
     EventBus.getDefault().post(new TodoFragment.LE_AddTodoListItem());
-    Snackbar.make(view, "Todo list item added", Snackbar.LENGTH_LONG)
-            .setAction("State",
-                       v -> {
-                         String msg = ctx.getReduxState().toString();
-                         Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT)
-                              .show();
-                       })
-            .show();
   }
 }
 
