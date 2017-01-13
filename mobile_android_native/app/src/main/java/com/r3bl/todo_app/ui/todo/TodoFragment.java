@@ -2,6 +2,7 @@ package com.r3bl.todo_app.ui.todo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,10 @@ import org.greenrobot.eventbus.ThreadMode;
  * the todolist ui that is bound to the state
  */
 public class TodoFragment extends Fragment {
-protected EditText     textInput;
-protected RecyclerView recyclerView;
-private   Subscription subscriber;
+protected EditText        textInput;
+protected RecyclerView    recyclerView;
+private   Subscription    subscriber;
+private   TodoListAdapter rv_adapter;
 
 public TodoFragment() {
 }
@@ -37,9 +39,11 @@ public View onCreateView(LayoutInflater inflater,
   View view = inflater.inflate(R.layout.todo_fragment, container, false);
 
   textInput = (EditText) view.findViewById(R.id.todo_text_input);
-  recyclerView = (RecyclerView) view.findViewById(R.id.todo_recycler_view);
+  recyclerView = (RecyclerView) view.findViewById(R.id.todo_list_recyclerview);
 
   EventBus.getDefault().register(this);
+
+  _setupRecyclerView(view, ctx);
 
   _updateUI(ctx);
 
@@ -47,6 +51,14 @@ public View onCreateView(LayoutInflater inflater,
 
   return view;
 
+}
+
+private void _setupRecyclerView(View view, App ctx) {
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.todo_list_recyclerview);
+  rv_adapter = new TodoListAdapter(ctx);
+  rv.setAdapter(rv_adapter);
+  rv.setLayoutManager(new LinearLayoutManager(ctx));
+  rv.setHasFixedSize(true);
 }
 
 //

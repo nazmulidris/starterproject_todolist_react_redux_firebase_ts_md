@@ -22,14 +22,14 @@ import org.greenrobot.eventbus.ThreadMode;
  * Created by nazmul on 11/13/16.
  */
 
-public class ReduxDebugFragment extends Fragment {
+public class DebugFragment extends Fragment {
 
-protected TextView             text_time;
-protected TextView             text_sessionId;
-private   ReduxDebugLogAdapter rv_adapter;
-private   Subscription         subscriber;
+protected TextView            text_time;
+protected TextView            text_sessionId;
+private   DebugLogListAdapter rv_adapter;
+private   Subscription        subscriber;
 
-public ReduxDebugFragment() {
+public DebugFragment() {
   // need a default constructor
 }
 
@@ -38,7 +38,7 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
   App ctx = (App) getActivity().getApplicationContext();
 
-  View view = inflater.inflate(R.layout.debug_recyclerview, container, false);
+  View view = inflater.inflate(R.layout.debug_fragment, container, false);
 
   text_time = (TextView) view.findViewById(R.id.debug_rv_text_time);
   text_sessionId = (TextView) view.findViewById(R.id.debug_rv_text_sessionId);
@@ -60,8 +60,8 @@ public void onDestroyView() {
 }
 
 private void _setupRecyclerView(View view, App ctx) {
-  RecyclerView rv = (RecyclerView) view.findViewById(R.id.debug_rv_list);
-  rv_adapter = new ReduxDebugLogAdapter(ctx);
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.debug_list_recyclerview);
+  rv_adapter = new DebugLogListAdapter(ctx);
   rv.setAdapter(rv_adapter);
   rv.setLayoutManager(new LinearLayoutManager(ctx));
   rv.setHasFixedSize(true);
@@ -78,12 +78,12 @@ public void onMessageEvent(ReduxDebugLog.LE_StateAddedToReduxDebugLog event) {
 }
 
 @Subscribe(threadMode = ThreadMode.MAIN)
-public void onMessageEvent(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+public void onMessageEvent(DebugLogListAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
   _showUsingMyDialogFragment(event);
   //_showUsingMaterialDesignDialogs(event);
 }
 
-private void _showUsingMyDialogFragment(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+private void _showUsingMyDialogFragment(DebugLogListAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
   DebugDetailsDialogFragment.newInstance(event.position)
                             .show(getFragmentManager(), "dialog");
 }
@@ -92,7 +92,7 @@ private void _showUsingMyDialogFragment(ReduxDebugLogAdapter.LE_ShowDialogWithHi
  * more info - https://guides.codepath.com/android/Using-DialogFragment#full-screen-dialog
  * more info - https://github.com/afollestad/material-dialogs
  */
-private void _showUsingMaterialDesignDialogs(ReduxDebugLogAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
+private void _showUsingMaterialDesignDialogs(DebugLogListAdapter.LE_ShowDialogWithHistoryEntryDetails event) {
   StringBuilder sb = new StringBuilder();
   sb.append(">>>>>>>>>>>>>>>>>>>>>>>>>\n")
     .append(">> ACTION: ")

@@ -16,8 +16,8 @@ import java.util.ArrayList;
  * Created by nazmul on 11/26/16.
  */
 
-public class ReduxDebugLogAdapter
-  extends RecyclerView.Adapter<ReduxDebugLogAdapter.ViewHolder> {
+public class DebugLogListAdapter
+  extends RecyclerView.Adapter<DebugLogListAdapter.ViewHolder> {
 private final ArrayList<ReduxDebugLog.HistoryEntry> _list;
 private final App                                   _ctx;
 
@@ -25,7 +25,7 @@ private final App                                   _ctx;
 // Constructor
 //
 
-public ReduxDebugLogAdapter(App ctx) {
+public DebugLogListAdapter(App ctx) {
   _ctx = ctx;
   _list = ctx.getReduxLog()._stateHistory;
 }
@@ -37,7 +37,7 @@ public ReduxDebugLogAdapter(App ctx) {
 @Override
 public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
   View view = LayoutInflater.from(_ctx)
-                            .inflate(R.layout.debug_recyclerview_row, parent, false);
+                            .inflate(R.layout.debug_listview_row, parent, false);
   return new ViewHolder(view);
 }
 
@@ -63,8 +63,8 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
   public ViewHolder(View itemView) {
     super(itemView);
-    text_description = (TextView) itemView.findViewById(R.id.row_text_description);
-    text_time = (TextView) itemView.findViewById(R.id.row_text_time);
+    text_description = (TextView) itemView.findViewById(R.id.debug_listview_row_text_description);
+    text_time = (TextView) itemView.findViewById(R.id.debug_listview_row_text_time);
     // attach the click listener
     itemView.setOnClickListener(this);
   }

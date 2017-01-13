@@ -41,7 +41,7 @@ public static DebugDetailsDialogFragment newInstance(int position) {
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-  View view = inflater.inflate(R.layout.debug_viewpager, container, false);
+  View view = inflater.inflate(R.layout.debug_details_viewpager, container, false);
 
   // get the position int from the bundle
   int position = getArguments().getInt("position", -1);

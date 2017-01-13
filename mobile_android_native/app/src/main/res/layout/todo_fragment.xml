@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/todo_recycler_view"
+        android:id="@+id/todo_list_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true" />

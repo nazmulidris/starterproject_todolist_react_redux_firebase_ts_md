@@ -48,7 +48,7 @@ public static StateFragment newInstance(Type type, int position) {
 public View onCreateView(LayoutInflater inflater,
                          @Nullable ViewGroup container,
                          @Nullable Bundle savedInstanceState) {
-  View view = inflater.inflate(R.layout.debug_dialog, container, false);
+  View view = inflater.inflate(R.layout.debug_state_fragment, container, false);
 
   text_title = (TextView) view.findViewById(R.id.debug_dialog_text_title);
   text_description = (TextView) view.findViewById(R.id.debug_dialog_text_description);

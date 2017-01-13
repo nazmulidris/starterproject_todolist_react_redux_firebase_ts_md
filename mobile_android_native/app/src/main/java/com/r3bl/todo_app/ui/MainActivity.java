@@ -29,7 +29,7 @@ import com.r3bl.todo_app.container.App;
 import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.todoapp.R;
 import com.r3bl.todo_app.ui.groupchat.GroupChatFragment;
-import com.r3bl.todo_app.ui.reduxdebug.ReduxDebugFragment;
+import com.r3bl.todo_app.ui.reduxdebug.DebugFragment;
 import com.r3bl.todo_app.ui.todo.TodoFragment;
 import me.relex.circleindicator.CircleIndicator;
 import org.greenrobot.eventbus.EventBus;
@@ -247,7 +247,7 @@ class ViewPagerAdapter extends FragmentPagerAdapter {
       case 1:
         return new GroupChatFragment();
       case 2:
-        return new ReduxDebugFragment();
+        return new DebugFragment();
     }
     return null;
   }
