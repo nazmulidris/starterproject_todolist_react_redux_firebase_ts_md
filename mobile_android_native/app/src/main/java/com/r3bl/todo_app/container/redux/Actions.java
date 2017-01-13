@@ -38,6 +38,28 @@ public static class AddTodoItem implements MyAction<Data.TodoItem> {
   }
 }
 
+// ToggleTodoItem action class
+public static class ToggleTodoItem implements MyAction<Integer> {
+  private final int index;
+
+  public ToggleTodoItem(int index) {
+    this.index = index;
+  }
+
+  @Override
+  public Integer getParam() {
+    return index;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("ToggleTodoItem{");
+    sb.append("index=").append(index);
+    sb.append('}');
+    return sb.toString();
+  }
+}
+
 // SetUser action class
 public static class SetUser implements MyAction<User> {
   private final User userObject;

@@ -6,21 +6,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.r3bl.todo_app.container.App;
+import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.todoapp.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by nazmul on 1/12/17.
  */
 public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHolder> {
 private final App                      _ctx;
-private final ArrayList<Data.TodoItem> _list;
 
 public TodoListAdapter(App ctx) {
   this._ctx = ctx;
-  this._list = ctx.getReduxState().data.todoArray;
 }
 
 //
@@ -36,14 +33,14 @@ public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
 @Override
 public void onBindViewHolder(ViewHolder holder, int position) {
-  Data.TodoItem row = _list.get(position);
+  Data.TodoItem row = _ctx.getReduxState().data.todoArray.get(position);
   holder.item.setText(row.item);
   holder.done.setText(String.valueOf(row.done));
 }
 
 @Override
 public int getItemCount() {
-  return _list.size();
+  return _ctx.getReduxState().data.todoArray.size();
 }
 
 //
@@ -63,7 +60,7 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
   @Override
   public void onClick(View v) {
-    // TODO: 1/12/17 toggle action the todoitem done state
+    _ctx.getReduxStore().dispatch(new Actions.ToggleTodoItem(getAdapterPosition()));
   }
 
 }// end ViewHolder

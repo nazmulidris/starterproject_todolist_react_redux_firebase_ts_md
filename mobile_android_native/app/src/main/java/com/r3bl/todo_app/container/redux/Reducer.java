@@ -44,6 +44,11 @@ public State reduce(State state, Action actionParam) {
       Actions.ResetState action = (Actions.ResetState) actionParam;
       newState = new State();
     }
+    else if (actionParam instanceof Actions.ToggleTodoItem){
+      Actions.ToggleTodoItem action = (Actions.ToggleTodoItem) actionParam;
+      int index = action.getParam();
+      newState.data.todoArray.get(index).done = !newState.data.todoArray.get(index).done;
+    }
 
     ctx.getReduxLog().push(ctx.getTime(), state, actionParam, newState);
 
