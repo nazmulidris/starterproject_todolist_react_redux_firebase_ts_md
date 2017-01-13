@@ -32,6 +32,7 @@ import com.r3bl.todo_app.ui.groupchat.GroupChatFragment;
 import com.r3bl.todo_app.ui.reduxdebug.ReduxDebugFragment;
 import com.r3bl.todo_app.ui.todo.TodoFragment;
 import me.relex.circleindicator.CircleIndicator;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * more info on google signin & firebase auth -
@@ -168,10 +169,7 @@ private void _actionFab(View view) {
     Toast.makeText(MainActivity.this, "You must sign in to do this", Toast.LENGTH_SHORT)
          .show();
   } else {
-    ctx.getReduxStore().dispatch(new Actions.AddTodoItem(ctx.getTime(), false));
-    Toast.makeText(MainActivity.this, "todo login action", Toast.LENGTH_SHORT)
-         .show();
-
+    EventBus.getDefault().post(new TodoFragment.LE_AddTodoListItem());
     Snackbar.make(view, "Todo list item added", Snackbar.LENGTH_LONG)
             .setAction("State",
                        v -> {

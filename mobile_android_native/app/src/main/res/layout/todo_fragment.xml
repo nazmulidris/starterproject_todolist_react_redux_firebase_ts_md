@@ -21,6 +21,7 @@
         android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
         android:hint="Add a todo item"
         android:fontFamily="monospace"
+        android:imeOptions="actionGo"
         />
 
 </RelativeLayout>

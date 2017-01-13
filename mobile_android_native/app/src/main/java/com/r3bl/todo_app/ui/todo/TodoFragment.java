@@ -10,9 +10,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.brianegan.bansa.Subscription;
 import com.r3bl.todo_app.container.App;
+import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.todoapp.R;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-/** the todolist ui that is bound to the state */
+/**
+ * the todolist ui that is bound to the state
+ */
 public class TodoFragment extends Fragment {
 protected EditText     textInput;
 protected RecyclerView recyclerView;
@@ -33,6 +39,8 @@ public View onCreateView(LayoutInflater inflater,
   textInput = (EditText) view.findViewById(R.id.todo_text_input);
   recyclerView = (RecyclerView) view.findViewById(R.id.todo_recycler_view);
 
+  EventBus.getDefault().register(this);
+
   _updateUI(ctx);
 
   _bindToReduxState(ctx);
@@ -40,6 +48,26 @@ public View onCreateView(LayoutInflater inflater,
   return view;
 
 }
+
+//
+// Event Bus Stuff
+//
+
+@Subscribe(threadMode = ThreadMode.MAIN)
+public void onMessageEvent(LE_AddTodoListItem event) {
+  String item = textInput.getText().toString();
+  App.getContext(getActivity())
+     .getReduxStore()
+     .dispatch(new Actions.AddTodoItem(item, false));
+  textInput.setText("");
+}
+
+public static class LE_AddTodoListItem {
+}
+
+//
+// Redux binding and unbinding
+//
 
 @Override
 public void onDestroyView() {
@@ -56,6 +84,10 @@ private void _bindToReduxState(App ctx) {
   });
   App.log("TodoFragment", "_bindToReduxState: [RAN]");
 }
+
+//
+// Update the UI with the data in the state
+//
 
 private void _updateUI(App ctx) {
   Toast.makeText(ctx, "update todo ui now", Toast.LENGTH_SHORT).show();
