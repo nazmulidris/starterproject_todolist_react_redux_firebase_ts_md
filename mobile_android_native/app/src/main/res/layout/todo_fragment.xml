@@ -4,13 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/todo_list_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_above="@+id/todo_text_input" />
-
     <EditText
         style="@style/Divider"
         android:id="@+id/todo_text_input"
@@ -25,5 +18,13 @@
         android:fontFamily="monospace"
         android:imeOptions="actionGo"
         />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_above="@+id/todo_text_input"
+        android:id="@+id/todo_list_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

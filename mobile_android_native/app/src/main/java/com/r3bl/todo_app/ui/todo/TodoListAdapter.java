@@ -14,7 +14,7 @@ import com.r3bl.todo_app.todoapp.R;
  * Created by nazmul on 1/12/17.
  */
 public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.ViewHolder> {
-private final App                      _ctx;
+private final App _ctx;
 
 public TodoListAdapter(App ctx) {
   this._ctx = ctx;
@@ -34,8 +34,10 @@ public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 @Override
 public void onBindViewHolder(ViewHolder holder, int position) {
   Data.TodoItem row = _ctx.getReduxState().data.todoArray.get(position);
-  holder.item.setText(row.item);
-  holder.done.setText(String.valueOf(row.done));
+  if (row != null) {
+    holder.item.setText(row.item);
+    holder.done.setText(String.valueOf(row.done));
+  }
 }
 
 @Override
