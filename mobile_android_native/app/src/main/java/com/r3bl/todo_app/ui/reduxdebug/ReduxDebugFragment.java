@@ -40,8 +40,8 @@ public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
 
   View view = inflater.inflate(R.layout.debug_recyclerview, container, false);
 
-  text_time = (TextView) view.findViewById(R.id.rv_text_time);
-  text_sessionId = (TextView) view.findViewById(R.id.rv_text_sessionId);
+  text_time = (TextView) view.findViewById(R.id.debug_rv_text_time);
+  text_sessionId = (TextView) view.findViewById(R.id.debug_rv_text_sessionId);
 
   _updateUI(ctx);
 
@@ -60,7 +60,7 @@ public void onDestroyView() {
 }
 
 private void _setupRecyclerView(View view, App ctx) {
-  RecyclerView rv = (RecyclerView) view.findViewById(R.id.todo_recycler_view);
+  RecyclerView rv = (RecyclerView) view.findViewById(R.id.debug_rv_list);
   rv_adapter = new ReduxDebugLogAdapter(ctx);
   rv.setAdapter(rv_adapter);
   rv.setLayoutManager(new LinearLayoutManager(ctx));

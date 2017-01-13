@@ -50,8 +50,8 @@ public View onCreateView(LayoutInflater inflater,
                          @Nullable Bundle savedInstanceState) {
   View view = inflater.inflate(R.layout.debug_dialog, container, false);
 
-  text_title = (TextView) view.findViewById(R.id.debug_text_title);
-  text_description = (TextView) view.findViewById(R.id.debug_text_description);
+  text_title = (TextView) view.findViewById(R.id.debug_dialog_text_title);
+  text_description = (TextView) view.findViewById(R.id.debug_dialog_text_description);
 
   actionType = getArguments().getString("type", "");
   position = getArguments().getInt("position", -1);
