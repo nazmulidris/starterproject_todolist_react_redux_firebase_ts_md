@@ -72,6 +72,7 @@ public static class LE_AddTodoListItem {
 @Override
 public void onDestroyView() {
   if (subscriber != null) subscriber.unsubscribe();
+  EventBus.getDefault().unregister(this);
   App.log("TodoFragment", "onDestroyView: [RAN]");
   super.onDestroyView();
 }
