@@ -42,7 +42,11 @@ public void onBindViewHolder(ViewHolder holder, int position) {
 
 @Override
 public int getItemCount() {
-  return _ctx.getReduxState().data.todoArray.size();
+  try{
+    return _ctx.getReduxState().data.todoArray.size();
+  }catch(Exception e){
+    return 0;
+  }
 }
 
 //
