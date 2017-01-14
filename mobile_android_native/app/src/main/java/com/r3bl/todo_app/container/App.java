@@ -9,6 +9,7 @@ import com.r3bl.todo_app.container.firebase.MyDB;
 import com.r3bl.todo_app.container.redux.Actions;
 import com.r3bl.todo_app.container.redux.Reducer;
 import com.r3bl.todo_app.container.redux.ReduxDebugLog;
+import com.r3bl.todo_app.container.redux.StateMiddleware;
 import com.r3bl.todo_app.container.redux.state.State;
 import com.r3bl.todo_app.container.redux.state.User;
 
@@ -154,9 +155,9 @@ public LoggedInState getUserLoginState() {
 
 private void _initReduxStore() {
   _log = new ReduxDebugLog();
-  State state = new State();
-  com.brianegan.bansa.Reducer reducer = new Reducer(this);
-  _store = new BaseStore<>(state, reducer);
+  _store = new BaseStore<>(new State(),
+                           new Reducer(this),
+                           new StateMiddleware());
 }
 
 public State getReduxState() {
