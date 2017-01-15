@@ -64,17 +64,13 @@ private void _processUserLogin(@NonNull FirebaseUser firebaseUserObject) {
                              old_user.isAnonymous &&
                              !new_user.isAnonymous;
 
-  // stop saving state to firebase
-  _ctx.getDatabase().removeValueListener(); // stop listening to db updates
-  _ctx.getDatabase().stopSavingStateToFirebase(); // stop saving to db
+  _ctx.getDatabase().removeUserDataValueListener(); // stop listening to db updates
+  _ctx.getDatabase().removeUserInfoValueListener(); // stop listening to db updates
 
   if (performMigration) {
     // anon -> signedin ... do data migration
     _ctx.getDatabase().performDataMigration(old_user, new_user);
   }
-
-  // start saving state to firebase
-  _ctx.getDatabase().startSavingStateToFirebase(); // start saving to db again
 
   // process user login
   _ctx.getDatabase().saveUserAndLoadData(new_user);

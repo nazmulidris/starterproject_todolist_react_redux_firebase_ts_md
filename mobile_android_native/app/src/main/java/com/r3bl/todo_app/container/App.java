@@ -157,7 +157,7 @@ private void _initReduxStore() {
   _log = new ReduxDebugLog();
   _store = new BaseStore<>(new State(),
                            new Reducer(this),
-                           new StateMiddleware());
+                           new StateMiddleware(this));
 }
 
 public State getReduxState() {

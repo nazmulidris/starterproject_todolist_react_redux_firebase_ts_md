@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import com.brianegan.bansa.Subscription;
 import com.google.firebase.database.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,6 +17,7 @@ import com.r3bl.todo_app.container.redux.state.User;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_ACCOUNT_ROOT;
 import static com.r3bl.todo_app.container.firebase.MyDB.Locations.USER_DATA_ROOT;
 
 /**
@@ -28,22 +28,20 @@ public class MyDB {
 private final App                _ctx;
 private final FirebaseDatabase   _db;
 private final ExecutorService    _exec;
-private       Subscription       _subscription;
-private       ValueEventListener valueListener;
-private       DatabaseReference  refWithValueListener;
+private       ValueEventListener user_data_listener;
+private       ValueEventListener user_info_listener;
+private       DatabaseReference  user_data_ref;
+private       DatabaseReference  user_info_ref;
 
 public enum Locations {
   USER_ACCOUNT_ROOT,
   USER_DATA_ROOT,
   DATA_KEY,
-  sessionId,
-  timestamp,
 }
 
 public MyDB(App app) {
   _ctx = app;
   _db = com.google.firebase.database.FirebaseDatabase.getInstance();
-  startSavingStateToFirebase();
   _exec = Executors.newSingleThreadExecutor();
 }
 
@@ -52,57 +50,25 @@ public com.google.firebase.database.FirebaseDatabase getDatabase() {
 }
 
 public void saveUserAndLoadData(User user) {
-  // check to see whether SetUser should be fired or not
-  _dispatchSetUserAction(user);
+  // save the user object to firebase
+  saveUserInfoToFirebase(user);
 
-  // load the data for the user
-  _loadDataForUserAndAttachListenerToFirebase(user.uid);
+  // start listening for updates from firebase (which will fire actions)
+  attachListenerToUserInfo(user.uid);
+  attachListenerToUserData(user.uid);
 }
 
-private void _saveUserObjectToFirebase(User user) {
-  // save the userObject to firebase
-  DatabaseReference rootRef = _db.getReference()
-                                 .child(Locations.USER_ACCOUNT_ROOT.name())
-                                 .child(user.uid);
-  rootRef.setValue(user);
-  App.log("Database._saveUserObjectToFirebase",
-          "saving User object to Firebase, uid:" + user.uid);
-}
+public void attachListenerToUserData(String uid) {
+  removeUserDataValueListener();
 
-private void _dispatchSetUserAction(User firebaseUser) {
-  // check to see whether SetUser action should be dispatched
-  User localUser = _ctx.getReduxState().user;
+  user_data_ref = _db.getReference().child(USER_DATA_ROOT.name())
+                     .child(uid)
+                     .child(Locations.DATA_KEY.name());
 
-  if (!firebaseUser.equals(localUser)) {
-    App.log("Database._dispatchSetUserAction",
-            "Local user and Firebase user are not the same",
-            "1) dispatching SetUser action, ",
-            "2) Saving the user object to Firebase");
-    //diff(firebaseUser, localUser));
-
-    // dispatch a redux action to set the user object
-    _ctx.getReduxStore().dispatch(new Actions.SetUser(firebaseUser));
-
-    // check to see if the firebase userobject should be saved
-    _saveUserObjectToFirebase(firebaseUser);
-
-  } else {
-    App.log("Database._dispatchSetUserAction",
-            "Local user and Firebase user are the same - will not dispatch SetUser action");
-  }
-}
-
-private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
-  removeValueListener();
-
-  refWithValueListener = _db.getReference().child(USER_DATA_ROOT.name())
-                            .child(uid)
-                            .child(Locations.DATA_KEY.name());
-
-  valueListener = new ValueEventListener() {
+  user_data_listener = new ValueEventListener() {
     @Override
     public void onDataChange(DataSnapshot dataSnapshot) {
-      _processUpdateFromFirebase(dataSnapshot);
+      _fromFirebaseUserData(dataSnapshot);
     }
 
     @Override
@@ -111,15 +77,86 @@ private void _loadDataForUserAndAttachListenerToFirebase(String uid) {
     }
   };
 
-  refWithValueListener.addValueEventListener(valueListener);
+  user_data_ref.addValueEventListener(user_data_listener);
 }
 
-public void removeValueListener() {
-  if (refWithValueListener != null) {
-    if (valueListener != null) {
-      refWithValueListener.removeEventListener(valueListener);
-    }
+public void removeUserDataValueListener() {
+  try {
+    user_data_ref.removeEventListener(user_data_listener);
+  } catch (Exception e) {
   }
+}
+
+public void attachListenerToUserInfo(String uid) {
+  removeUserInfoValueListener();
+
+  user_info_ref = _db.getReference().child(USER_ACCOUNT_ROOT.name())
+                     .child(uid);
+
+  user_info_listener = new ValueEventListener() {
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+      _fromFirebaseUserInfo(dataSnapshot);
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+
+    }
+  };
+
+  user_info_ref.addValueEventListener(user_info_listener);
+
+}
+
+public void removeUserInfoValueListener() {
+  try {
+    user_info_ref.removeEventListener(user_info_listener);
+  } catch (Exception e) {
+  }
+}
+
+//
+// UserInfo and Data load / save to / from Firebase
+//
+
+private void _fromFirebaseUserInfo(DataSnapshot dataSnapshot) {
+
+  _exec.submit(() -> {
+    try {
+      App.log("Database", "_fromFirebaseUserInfo");
+      User userinfo = dataSnapshot.getValue(User.class);
+
+      if (userinfo == null) {
+        App.log("Database._fromFirebaseUserInfo]",
+                "no data object found in Firebase");
+        return;
+      }
+
+      // Create a handler attached to the UI Looper
+      Handler handler = new Handler(Looper.getMainLooper());
+      // Post code to run on the main UI Thread (usually invoked from worker thread)
+      handler.post(() -> {
+        _ctx.getReduxStore().dispatch(new Actions.SetUser(userinfo));
+        App.log("Database._fromFirebaseUserInfo",
+                "dispatching SetData action");
+      });
+
+    } catch (Exception e) {
+      App.logErr("Database", "_fromFirebaseUserInfo issue", e);
+    }
+  });
+
+}// end _fromFirebaseUserInfo
+
+public void saveUserInfoToFirebase(User userinfo) {
+  if (userinfo != null) {
+    DatabaseReference ref = _db.getReference()
+                               .child(USER_ACCOUNT_ROOT.name())
+                               .child(userinfo.uid);
+    ref.setValue(userinfo);
+  }
+  saveStateToSharedPrefs(_ctx, _ctx.getReduxState());
 }
 
 /**
@@ -127,97 +164,36 @@ public void removeValueListener() {
  * <p>
  * more info - https://guides.codepath.com/android/Managing-Threads-and-Custom-Services#using-an-asynctask
  */
-private void _processUpdateFromFirebase(DataSnapshot dataSnapshot) {
+private void _fromFirebaseUserData(DataSnapshot dataSnapshot) {
+
   _exec.submit(() -> {
     try {
-      App.log("Database", "_processUpdateFromFirebase");
+      App.log("Database", "_fromFirebaseUserData");
       Data data = dataSnapshot.getValue(Data.class);
 
       if (data == null) {
-        App.log("Database._processUpdateFromFirebase]",
+        App.log("Database._fromFirebaseUserData]",
                 "no data object found in Firebase");
         return;
       }
 
-      String sessionIdFromFirebase = data.sessionId;
-      String localSessionId = _ctx.getSessionId();
-
-      // make sure that the data classes (eg: Data, TodoItem) has an impl of equals()
-      if (!localSessionId.equals(sessionIdFromFirebase) ||
-          !data.equals(_ctx.getReduxState().data)) {
-        // DATA IS DIFFERENT!
-        // Create a handler attached to the UI Looper
-        Handler handler = new Handler(Looper.getMainLooper());
-        // Post code to run on the main UI Thread (usually invoked from worker thread)
-        handler.post(() -> {
-          _ctx.getReduxStore().dispatch(new Actions.SetData(data));
-          App.log("Database._processUpdateFromFirebase",
-                  "local and firebase sessionIds do NOT match",
-                  "dispatching SetData action");
-        });
-      } else {
-        // DATA IS THE SAME!
-        App.log("Database._processUpdateFromFirebase",
-                "local and firebase sessionIds are the SAME",
-                "will NOT dispatch SetData action, since I already applied it locally");
-      }
-    } catch (Exception e) {
-      App.logErr("Database._processUpdateFromFirebase issue", e.toString());
-    }
-  });
-
-/*  // OLD CODE THAT USED SESSIONID INEQUALITY TO DETECT CHANGES IN THE DATA MODEL ONLY
-
-    if (dataObject != null) {
-
-      String sessionIdFromFirebase = dataObject.sessionId;
-      String localSessionId = _ctx.getSessionId();
-
-      //App.log("Database._processUpdateFromFirebase",
-      //        "comparing session ids:", sessionIdFromFirebase, localSessionId);
-
-      if (!sessionIdFromFirebase.equals(localSessionId)) {
-
-        // dispatch a redux action to set the data object
-        _ctx.getReduxStore().dispatch(new Actions.SetData(dataObject));
-        App.log("Database._processUpdateFromFirebase",
-                "local and firebase sessionIds do NOT match",
+      // Create a handler attached to the UI Looper
+      Handler handler = new Handler(Looper.getMainLooper());
+      // Post code to run on the main UI Thread (usually invoked from worker thread)
+      handler.post(() -> {
+        _ctx.getReduxStore().dispatch(new Actions.SetData(data));
+        App.log("Database._fromFirebaseUserData",
                 "dispatching SetData action");
-        //, dataObject.toString());
+      });
 
-      } else {
-
-        // don't dispatch
-        App.log("Database._processUpdateFromFirebase",
-                "local and firebase sessionIds are the SAME",
-                "will NOT dispatch SetData action, since I already applied it locally");
-        //,dataObject.toString());
-
-      }
-
-    } else {
-      // nothing to dispatch
-      App.log("Database._processUpdateFromFirebase]",
-              "no data object found in Firebase");
+    } catch (Exception e) {
+      App.logErr("Database", "_fromFirebaseUserData issue", e);
     }
-
-*/
-
-}
-
-public void startSavingStateToFirebase() {
-  stopSavingStateToFirebase();
-  _subscription = _ctx.getReduxStore().subscribe(state -> {
-    _saveStateToFirebase(state);
   });
-}
 
-public void stopSavingStateToFirebase() {
-  if (_subscription != null) _subscription.unsubscribe();
-}
+}// end _fromFirebaseUserData
 
-private void _saveStateToFirebase(State state) {
-  Data data = state.data;
+public void saveUserDataToFirebase(Data data) {
   if (data != null) {
     data.prepForSaveToFirebase(_ctx.getSessionId(), ServerValue.TIMESTAMP);
 
@@ -227,7 +203,7 @@ private void _saveStateToFirebase(State state) {
                                .child(Locations.DATA_KEY.name());
     ref.setValue(data);
   }
-  saveStateToSharedPrefs(_ctx, state);
+  saveStateToSharedPrefs(_ctx, _ctx.getReduxState());
 }
 
 //
@@ -317,12 +293,6 @@ private void _copyAndDelete(User old_user, User new_user) {
 private void _copy(DataSnapshot dataSnapshot, DatabaseReference new_user_data_ref) {
   Data oldUserData = dataSnapshot.getValue(Data.class);
   if (oldUserData != null) {
-/*  // OLD CODE THAT USED SESSIONID INEQUALITY TO DETECT CHANGES IN THE DATA MODEL ONLY
-
-    reset the sessionId so that it triggers a write!
-    oldUserData.sessionId = _ctx.getSessionId() + new Date().toString();
-
-*/
     // copy the data from old_user -> new_user
     new_user_data_ref.setValue(oldUserData);
   }

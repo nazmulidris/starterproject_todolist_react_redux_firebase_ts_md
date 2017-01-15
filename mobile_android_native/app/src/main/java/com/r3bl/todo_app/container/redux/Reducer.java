@@ -2,7 +2,6 @@ package com.r3bl.todo_app.container.redux;
 
 import com.brianegan.bansa.Action;
 import com.r3bl.todo_app.container.App;
-import com.r3bl.todo_app.container.redux.state.Data;
 import com.r3bl.todo_app.container.redux.state.State;
 
 /**
@@ -23,31 +22,26 @@ public State reduce(State state, Action actionParam) {
 
     State newState = state.deepCopy();
 
-    if (actionParam instanceof Actions.AddTodoItem) {
-      if (newState.data == null) newState.data = new Data();
-      Actions.AddTodoItem action = (Actions.AddTodoItem) actionParam;
-      newState.data.todoArray.add(action.getParam());
-    }
-    else if (actionParam instanceof Actions.SetUser) {
+    if (actionParam instanceof Actions.SetUser) {
+
       Actions.SetUser action = (Actions.SetUser) actionParam;
       newState.user = action.getParam();
-    }
-    else if (actionParam instanceof Actions.SetData) {
+
+    } else if (actionParam instanceof Actions.SetData) {
+
       Actions.SetData action = (Actions.SetData) actionParam;
       newState.data = action.getParam();
-    }
-    else if (actionParam instanceof Actions.RestoreState) {
+
+    } else if (actionParam instanceof Actions.RestoreState) {
+
       Actions.RestoreState action = (Actions.RestoreState) actionParam;
       newState = action.getParam();
-    }
-    else if (actionParam instanceof Actions.ResetState){
+
+    } else if (actionParam instanceof Actions.ResetState) {
+
       Actions.ResetState action = (Actions.ResetState) actionParam;
       newState = new State();
-    }
-    else if (actionParam instanceof Actions.ToggleTodoItem){
-      Actions.ToggleTodoItem action = (Actions.ToggleTodoItem) actionParam;
-      int index = action.getParam();
-      newState.data.todoArray.get(index).done = !newState.data.todoArray.get(index).done;
+
     }
 
     ctx.getReduxLog().push(ctx.getTime(), state, actionParam, newState);
@@ -57,7 +51,7 @@ public State reduce(State state, Action actionParam) {
     return newState;
 
   } catch (Exception e) {
-    App.logErr("Reducer", "reduce: problem running reducer", e);
+    App.logErr("Reducer", "problem running reduce()", e);
   }
   return state;
 }
