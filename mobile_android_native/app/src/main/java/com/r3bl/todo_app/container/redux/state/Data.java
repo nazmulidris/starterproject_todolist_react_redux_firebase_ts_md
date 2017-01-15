@@ -1,6 +1,5 @@
 package com.r3bl.todo_app.container.redux.state;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -8,10 +7,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * This class and all its contained classes must implement equals(). This is used by
- * {@link com.r3bl.todo_app.container.firebase.MyDB#_processUpdateFromFirebase(DataSnapshot)}
- * in order to determine whether {@link com.r3bl.todo_app.container.redux.Actions.SetData}
- * is dispatched to the redux store.
  * <ol>
  * <li> Data.equals() cares about the todoArray field only (not sessionId or timestamp)</li>
  * <li> TodoItem.equals() cares about all its public fields</li>
@@ -25,6 +20,21 @@ public class Data implements Serializable {
 public String sessionId;
 public Object timestamp;
 public ArrayList<TodoItem> todoArray = new ArrayList<>();
+
+/**
+ * firebase allows nulls to be inserted in data if elements in the middle of the array
+ * are deleted
+ */
+public void trimEmptyArrayItems() {
+  if (todoArray.contains(null)) {
+    ArrayList<TodoItem> newArray = new ArrayList<>();
+    for (TodoItem todoItem : todoArray) {
+      if (todoItem != null) newArray.add(todoItem);
+    }
+    todoArray.clear();
+    todoArray.addAll(newArray);
+  }
+}
 
 @Override
 public boolean equals(Object o) {

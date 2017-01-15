@@ -170,6 +170,7 @@ private void _fromFirebaseUserData(DataSnapshot dataSnapshot) {
     try {
       App.log("Database", "_fromFirebaseUserData");
       Data data = dataSnapshot.getValue(Data.class);
+      data.trimEmptyArrayItems();
 
       if (data == null) {
         App.log("Database._fromFirebaseUserData]",
