@@ -4,9 +4,10 @@ import {action_set_state_data, action_set_state_user} from "./actions";
 const GLOBAL_CONSTANTS = require('../../global/constants').GLOBAL_CONSTANTS;
 const LOGGING_ENABLED = require('../../global/constants').LOGGING_ENABLED;
 
+import {customMiddleware, add_todo_item, toggle_todo_item} from "./mymiddlewares";
 import {UserIF, DataIF, ReduxStateIF} from "./interfaces";
 
-import {createStore} from 'redux';
+import {createStore, applyMiddleware, compose} from 'redux';
 import * as reducers from './reducers';
 import * as actions from './actions';
 import * as persistence from './firebase';
@@ -267,15 +268,25 @@ class ApplicationContext {
   initReduxStore() {
     
     try {
+      const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+      
+      const middlewares = [
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+        add_todo_item,
+        toggle_todo_item];
+      const middlewareEnhancer = applyMiddleware(...middlewares);
       this.reduxStore = createStore(
         reducers.reducer_main,
         null,
-        window.devToolsExtension && window.devToolsExtension()
+        composeEnhancers(middlewareEnhancer)
       );
     } catch (e) {
+      const middlewares = [add_todo_item, toggle_todo_item];
+      const middlewareEnhancer = applyMiddleware(...middlewares);
       this.reduxStore = createStore(
         reducers.reducer_main,
-        null
+        null,
+        middlewareEnhancer
       );
     }
     
@@ -324,7 +335,7 @@ class ApplicationContext {
 }
 
 function _dispatchAction(action, ctx) {
-  persistence.dispatchActionAndSaveStateToFirebase(action, ctx);
+  persistence.actuallyDispathAction(action, ctx);
 }
 
 function _bindActionCreator(actionCreator, dispatch, ctx) {

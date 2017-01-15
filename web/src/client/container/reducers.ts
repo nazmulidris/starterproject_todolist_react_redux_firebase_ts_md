@@ -21,63 +21,6 @@ const initialState: ReduxStateIF = {
   data: null, // store data object in here for user
 };
 
-function add_todo(state: ReduxStateIF,
-                  action: ReduxActionIF) {
-  
-  const todo_text: string = action.payload;
-  
-  if (!lodash.isNil(todo_text)) {
-    
-    let data_copy: DataIF = lodash.cloneDeep(state.data);
-    
-    let todoObject: TodoIF = {
-      item: todo_text,
-      done: false,
-    };
-    
-    if (lodash.isNil(data_copy)) {
-      data_copy = {todoArray: [todoObject]};
-    } else {
-      data_copy.todoArray.push(todoObject);
-    }
-    
-    const retval = {
-      user: state.user,
-      data: data_copy,
-    }
-    return retval;
-    
-  } else {
-    return state;
-  }
-  
-}
-
-function toggle_todo(state: ReduxStateIF,
-                     action: ReduxActionIF) {
-  
-  try {
-    
-    const index: number = action.payload;
-    let data_copy: DataIF = lodash.cloneDeep(applicationContext.getData());
-    let todoObject: TodoIF = data_copy.todoArray[index];
-    todoObject.done = !todoObject.done;
-    
-    const retval =  {
-      user: state.user,
-      data: data_copy,
-    }
-    return retval;
-    
-  } catch (e) {
-    console.log("_modifyTodoItem had a problem ...");
-    console.dir(e);
-  }
-  
-  return state;
-  
-}
-
 function set_data(state: ReduxStateIF, action: ReduxActionIF) {
   const retval = {
     data: action.payload,
@@ -100,10 +43,6 @@ function reducer_main(state: ReduxStateIF,
   switch (action.type) {
     case actions.TYPES.REDUX_INIT:
       return initialState;
-    case actions.TYPES.ADD_TODO:
-      return add_todo(state, action);
-    case actions.TYPES.TOGGLE_TODO:
-      return toggle_todo(state, action);
     case actions.TYPES.SET_STATE_DATA:
       return set_data(state, action);
     case actions.TYPES.SET_STATE_USER:

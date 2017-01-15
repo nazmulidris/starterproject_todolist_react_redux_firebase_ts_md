@@ -378,29 +378,25 @@ function _processUpdateFromFirebase(snap, ctx) {
   const payload_session_id = data[DB_CONST.SESSION_ID];
   const timestamp = data[DB_CONST.TIMESTAMP];
   
-  if (!lodash.isNil(payload_session_id)) {
-    if (lodash.isEqual(payload_session_id, ctx.getSessionId())) {
-      // do nothing! ignore this change ... it was made by me
-      // this change has been accounted for with dispatched redux
-      // actions already
-      if (LOGGING_ENABLED) {
-        console.log(
-          "_loadDataForUserAndAttachListenerToFirebase() - ignoring Firebase" +
-          " update since I made this change."
-        );
-      }
-      return;
-    }
-  }
-  
   // save the user's data
   ctx.getReduxStore()
      .dispatch(actions.action_set_state_data(data));
   
 }
 
+function writeStateToFirebase(ctx, data: DataIF) {
+  // save to persistence
+  let root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
+  
+  let value = data;
+  value[DB_CONST.SESSION_ID] = ctx.getSessionId();
+  value[DB_CONST.TIMESTAMP] = ctx.getFirebaseServerTimestampObject();
+  
+  root_ref.child(DB_CONST.DATA_KEY)
+          .set(value);
+}
 
-function dispatchActionAndSaveStateToFirebase(orig_action: ReduxActionIF, ctx) {
+function actuallyDispathAction(orig_action: ReduxActionIF, ctx) {
   
   let action = orig_action;
   
@@ -408,15 +404,7 @@ function dispatchActionAndSaveStateToFirebase(orig_action: ReduxActionIF, ctx) {
   ctx.getReduxStore()
      .dispatch(action);
   
-  // save to persistence
-  let root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
-  
-  let value = ctx.getReduxState().data;
-  value[DB_CONST.SESSION_ID] = ctx.getSessionId();
-  value[DB_CONST.TIMESTAMP] = ctx.getFirebaseServerTimestampObject();
-  
-  root_ref.child(DB_CONST.DATA_KEY)
-          .set(value);
+  //writeStateToFirebase(ctx, ctx.getReduxState().data);
   
 }
 
@@ -425,5 +413,6 @@ export {
   forceSignOut,
   forceSignIn,
   initAuth,
-  dispatchActionAndSaveStateToFirebase,
+  actuallyDispathAction,
+  writeStateToFirebase,
 }
