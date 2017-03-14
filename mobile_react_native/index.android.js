@@ -12,12 +12,12 @@ import {
   View
 } from 'react-native';
 
-export default class mobile extends Component {
+export default class mobile_react_native extends Component {
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          Welcome to R3BL RN!
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.android.js
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('mobile', () => mobile);
+AppRegistry.registerComponent('mobile_react_native', () => mobile_react_native);

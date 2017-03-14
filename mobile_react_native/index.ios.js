@@ -12,7 +12,7 @@ import {
   View
 } from 'react-native';
 
-export default class mobile extends Component {
+export default class mobile_react_native extends Component {
   render() {
     return (
       <View style={styles.container}>
@@ -50,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('mobile', () => mobile);
+AppRegistry.registerComponent('mobile_react_native', () => mobile_react_native);
