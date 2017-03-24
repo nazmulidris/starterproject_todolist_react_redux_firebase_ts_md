@@ -2,6 +2,10 @@
 ; We fork some components by platform
 .*/*[.]android.js
 
+; Ignore RN Libs | https://blog.iansinnott.com/getting-started-with-flow-and-webpack/
+.*/node_modules/react-native/Libraries/.*
+.*/node_modules/react-native/lib/.*
+
 ; Ignore "BUCK" generated dirs
 <PROJECT_ROOT>/\.buckd/
 
@@ -43,4 +47,5 @@ suppress_comment=\\(.\\|\n\\)*\\$FlowFixedInNextDeploy
 unsafe.enable_getters_and_setters=true
 
 [version]
-^0.38.0
+^0.42.0
+;^0.38.0
