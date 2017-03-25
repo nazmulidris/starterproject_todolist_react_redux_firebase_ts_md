@@ -3,10 +3,6 @@
     <envs>
       <env name="NODE_ENV" value="production" />
     </envs>
-    <profiling v8-profiler-path="" />
-    <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
-      <profiling v8-profiler-path="" />
-    </EXTENSION>
     <method />
   </configuration>
 </component>

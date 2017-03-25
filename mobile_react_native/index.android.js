@@ -12,52 +12,6 @@ import {
   View,
   Image
 } from 'react-native';
-import ImageView from './app/ImageView';
-import type {ImageType} from './flow/TypeAliases';
+import {MainView} from './app/MainView';
 
-const imageUrl: ImageType = {
-  uri: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Bananavarieties.jpg',
-  alt_text: 'banana'
-};
-
-export default class mobile_react_native extends Component {
-  render() {
-    
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to R3BL RN!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-        <ImageView uri={imageUrl.uri} height={110} width={193}/>
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-                                   container: {
-                                     flex: 1,
-                                     justifyContent: 'center',
-                                     alignItems: 'center',
-                                     backgroundColor: '#F5FCFF',
-                                   },
-                                   welcome: {
-                                     fontSize: 20,
-                                     textAlign: 'center',
-                                     margin: 10,
-                                   },
-                                   instructions: {
-                                     textAlign: 'center',
-                                     color: '#333333',
-                                     marginBottom: 5,
-                                   },
-                                 });
-
-AppRegistry.registerComponent('mobile_react_native', () => mobile_react_native);
+AppRegistry.registerComponent('mobile_react_native', () => MainView);

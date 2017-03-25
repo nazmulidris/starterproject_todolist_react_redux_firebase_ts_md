@@ -11,23 +11,15 @@ import {
 } from 'react-native';
 
 import type {ImageType} from '../flow/TypeAliases';
-import {MyClass} from '../flow/TestFile';
+import {imageStyles} from '../styles/Styles';
 
-export default class ImageView extends Component {
+class ImageView extends Component {
   render() {
     
     let {uri, width, height} = this.props;
     
-    const styles = StyleSheet.create({
-                                       imageSize: {
-                                         width: width,
-                                         height: height,
-                                       },
-                                       padding: {
-                                         marginTop: 16,
-                                       },
-                                     });
-  
+    const styles = imageStyles(width, height);
+    
     return (
       <Image source={{uri}} style={[styles.imageSize, styles.padding]}/>
     );
@@ -40,3 +32,5 @@ ImageView.propTypes = {
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
 };
+
+export {ImageView};
