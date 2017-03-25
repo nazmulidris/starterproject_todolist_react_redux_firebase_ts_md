@@ -15,16 +15,28 @@ import {MyClass} from '../flow/TestFile';
 
 export default class ImageView extends Component {
   render() {
+    
+    let {uri, width, height} = this.props;
+    
+    const styles = StyleSheet.create({
+                                       imageSize: {
+                                         width: width,
+                                         height: height,
+                                       },
+                                       padding: {
+                                         marginTop: 16,
+                                       },
+                                     });
+  
     return (
-      <Image source={this.props.imageObject}
-             style={{
-               width: 193,
-               height: 110
-             }}/>
+      <Image source={{uri}} style={[styles.imageSize, styles.padding]}/>
     );
+    
   }
 }
 
 ImageView.propTypes = {
-  imageObject: React.PropTypes.object.isRequired
+  uri: React.PropTypes.string.isRequired,
+  width: React.PropTypes.number.isRequired,
+  height: React.PropTypes.number.isRequired,
 };
