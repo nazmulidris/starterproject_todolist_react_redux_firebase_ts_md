@@ -1,17 +1,9 @@
 // @flow
 
-import React, {Component} from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image
-} from 'react-native';
+import React, {Component} from "react";
 
-import {styles} from '../styles/Styles';
-
-import {MainView} from './MainView';
-import {FlexboxView} from './FlexboxView';
+import {MainView} from "./MainView";
+import {FlexboxView1} from "./FlexboxView1";
 
 class Router extends Component {
   render() {
@@ -23,7 +15,7 @@ class Router extends Component {
         return new MainView().render();
         break;
       case 1:
-        return new FlexboxView().render();
+        return new FlexboxView1().render();
         break;
     }
     

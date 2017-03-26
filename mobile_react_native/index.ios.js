@@ -4,25 +4,20 @@
  * @flow
  */
 
-import React, { Component } from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import React, {Component} from "react";
+import {AppRegistry, StyleSheet, Text, View} from "react-native";
 
 export default class mobile_react_native extends Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
+      <View style={myStyles.container}>
+        <Text style={myStyles.welcome}>
           Welcome to React Native!
         </Text>
-        <Text style={styles.instructions}>
+        <Text style={myStyles.instructions}>
           To get started, edit index.ios.js
         </Text>
-        <Text style={styles.instructions}>
+        <Text style={myStyles.instructions}>
           Press Cmd+R to reload,{'\n'}
           Cmd+D or shake for dev menu
         </Text>
@@ -31,7 +26,7 @@ export default class mobile_react_native extends Component {
   }
 }
 
-const styles = StyleSheet.create({
+const myStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',

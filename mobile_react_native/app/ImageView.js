@@ -1,24 +1,16 @@
 // @flow
 
-import React, {Component} from 'react';
+import React, {Component} from "react";
 
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  Image
-} from 'react-native';
-
-import type {ImageType} from '../flow/TypeAliases';
-import {imageStyles} from '../styles/Styles';
+import {Image} from "react-native";
+import {imageViewStyles} from "../styles/Styles";
 
 class ImageView extends Component {
   render() {
     
     let {uri, width, height} = this.props;
-    
-    const styles = imageStyles(width, height);
+  
+    const styles = imageViewStyles(width, height);
     
     return (
       <Image source={{uri}} style={[styles.imageSize, styles.padding]}/>
