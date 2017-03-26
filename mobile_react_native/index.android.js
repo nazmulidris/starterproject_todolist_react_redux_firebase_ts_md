@@ -12,6 +12,6 @@ import {
   View,
   Image
 } from 'react-native';
-import {MainView} from './app/MainView';
+import {Router} from './app/Router';
 
-AppRegistry.registerComponent('mobile_react_native', () => MainView);
+AppRegistry.registerComponent('mobile_react_native', () => Router);
