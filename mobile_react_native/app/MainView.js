@@ -13,8 +13,11 @@ const imageUrl: ImageType = {
 };
 
 class MainView extends Component {
+  componentWillMount() {
+    console.log(`MainView component will mount`);
+  }
+  
   render() {
-    
     return (
       <View style={mainViewStyles.container}>
         <Text style={mainViewStyles.welcome}>
@@ -31,6 +34,7 @@ class MainView extends Component {
       </View>
     );
   }
+  
 }
 
 export {MainView};
