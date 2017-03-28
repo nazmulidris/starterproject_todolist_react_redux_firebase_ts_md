@@ -49,13 +49,20 @@ const flexboxView1Styles = StyleSheet.create(
 const flexboxView2Styles = StyleSheet.create(
   {
     container: {
+      overflow: 'visible',
+      flexWrap: 'wrap',
       flex: 1,
-      alignItems: 'flex-end',
+      alignItems: 'stretch',
+      justifyContent: 'flex-start',
       flexDirection: 'column-reverse',
-      flexWrap: 'nowrap',
       backgroundColor: '#8ed1fc'
     },
+    image: {
+      flex: 1,
+      alignSelf: 'stretch'
+    },
     text1: {
+      alignSelf: 'flex-end',
       fontSize: 20,
       fontWeight: '900',
       fontFamily: 'monospace',
@@ -65,6 +72,7 @@ const flexboxView2Styles = StyleSheet.create(
       padding: 16,
     },
     text2: {
+      alignSelf: 'flex-start',
       fontSize: 16,
       fontWeight: '500',
       fontFamily: 'monospace',
@@ -119,5 +127,6 @@ function imageViewStyles(width: number, height: number) {
       },
     });
 }
+
 
 export {mainViewStyles, imageViewStyles, flexboxView1Styles, flexboxView2Styles};

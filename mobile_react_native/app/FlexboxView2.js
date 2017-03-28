@@ -1,7 +1,7 @@
 // @flow
 
 import React, {Component} from "react";
-import {Text, View} from "react-native";
+import {Image, Text, View} from "react-native";
 
 import {flexboxView2Styles} from "../styles/Styles";
 
@@ -19,11 +19,16 @@ class FlexboxView2 extends Component {
   render() {
     let msg1: string = "Flexbox View";
     let msg2: string = "Details Text";
+    let img = {uri: "http://i.imgur.com/RRUe0Mo.png"};
     
     return (
       <View style={flexboxView2Styles.container}>
         <Text style={flexboxView2Styles.text1}>{msg1}</Text>
         <Text style={flexboxView2Styles.text2}>{msg2}</Text>
+        <Image style={flexboxView2Styles.image} source={img}/>
+        <Text style={flexboxView2Styles.text3}>{this.state.longText}</Text>
+        <Text style={flexboxView2Styles.text3}>{this.state.longText}</Text>
+        <Text style={flexboxView2Styles.text3}>{this.state.longText}</Text>
         <Text style={flexboxView2Styles.text3}>{this.state.longText}</Text>
       </View>
     );
