@@ -5,10 +5,11 @@ import {StyleSheet} from "react-native";
 
 // fonts available - https://github.com/dabit3/react-native-fonts
 // flexbox guide - https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox
-const flexboxViewStyles = StyleSheet.create(
+const flexboxView1Styles = StyleSheet.create(
   {
     container: {
       flex: 1,
+      alignItems: 'flex-end',
       flexDirection: 'column-reverse',
       flexWrap: 'nowrap',
       backgroundColor: '#8ed1fc'
@@ -36,7 +37,7 @@ const flexboxViewStyles = StyleSheet.create(
       fontSize: 12,
       fontWeight: '200',
       fontFamily: 'monospace',
-      flex: 1,
+      flex: -1,
       color: '#697689',
       backgroundColor: '#d4c4fb',
       margin: 16,
@@ -78,4 +79,4 @@ function imageViewStyles(width: number, height: number) {
     });
 }
 
-export {mainViewStyles, imageViewStyles, flexboxViewStyles};
+export {mainViewStyles, imageViewStyles, flexboxView1Styles};

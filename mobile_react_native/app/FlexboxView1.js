@@ -3,7 +3,7 @@
 import React, {Component} from "react";
 import {Text, View} from "react-native";
 
-import {flexboxViewStyles} from "../styles/Styles";
+import {flexboxView1Styles} from "../styles/Styles";
 
 class FlexboxView1 extends Component {
   constructor(props) {
@@ -21,18 +21,18 @@ class FlexboxView1 extends Component {
     let msg2: string = "Details Text";
     
     return (
-      <View style={flexboxViewStyles.container}>
-        <Text style={flexboxViewStyles.text1}>{msg1}</Text>
-        <Text style={flexboxViewStyles.text2}>{msg2}</Text>
-        <Text style={flexboxViewStyles.text3}>{this.state.longText}</Text>
+      <View style={flexboxView1Styles.container}>
+        <Text style={flexboxView1Styles.text1}>{msg1}</Text>
+        <Text style={flexboxView1Styles.text2}>{msg2}</Text>
+        <Text style={flexboxView1Styles.text3}>{this.state.longText}</Text>
       </View>
     );
   }
   
   getLongText() {
     this.setState({longText: "about to load uri"});
-    let uri: string = "https://baconipsum.com/api/?type=meat-and-filler&paras=2&format=text";
-    let msg: string = "";
+    let numLines: number = 1;
+    let uri: string = `https://baconipsum.com/api/?type=meat-and-filler&paras=${numLines}&format=text`;
     
     fetch(uri)
       .then((resp) => {
@@ -44,7 +44,6 @@ class FlexboxView1 extends Component {
       .catch((err) => {
         console.log(`problem getting data from ${uri}, error: ${err}`)
       });
-    
   }
   
 }// end FlexBoxView1
